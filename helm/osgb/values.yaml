@@ -1,0 +1,150 @@
+# Default values for osgb chart
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Namespace
+namespace: osgb-system
+
+# Backend configuration
+backend:
+  image:
+    repository: osgb/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 2
+  
+  service:
+    type: ClusterIP
+    port: 5002
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 128Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /api/auth/me
+      port: 5002
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /api/auth/me
+      port: 5002
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  env:
+    DB_HOST: mysql-service
+    DB_NAME: osgb_db
+    DB_USER: osgb_user
+    DB_PASSWORD: osgb_password
+    JWT_SECRET: super_secure_random_key_!@#123
+
+# Frontend configuration
+frontend:
+  image:
+    repository: osgb/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 2
+  
+  service:
+    type: LoadBalancer
+    port: 80
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  env:
+    REACT_APP_API_URL: http://osgb-backend-service:5002/api
+
+# MySQL configuration
+mysql:
+  image:
+    repository: mysql
+    tag: 8.0
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  service:
+    type: ClusterIP
+    port: 3306
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  
+  persistence:
+    enabled: true
+    size: 20Gi
+    accessModes:
+      - ReadWriteOnce
+  
+  auth:
+    rootPassword: rootpassword
+    username: osgb_user
+    password: osgb_password
+    database: osgb_db
+
+# Secrets configuration
+secrets:
+  enabled: true
+  mysql:
+    rootPassword: cm9vdHBhc3N3b3Jk
+    username: b3NnYl91c2Vy
+    password: b3NnYl9wYXNzd29yZA==
+  jwt:
+    secret: c3VwZXJfc2VjdXJlX3JhbmRvbV9rZXlfIUAjMTIz
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: osgb.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# Node selectors and tolerations
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,1154 @@
+.dashboard {
+  padding: 10px;
+}
+
+.dashboard-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 10px;
+  background-color: transparent;
+  margin-top: -35px;
+}
+
+.dashboard-header h1 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.welcome-message h2 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.workplace-form-container {
+  background: rgb(251, 251, 252);
+  border-radius: 1px;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
+  padding: 55px 10px 55px 10px; /* Further reduced horizontal padding from 15px to 10px */
+  box-sizing: border-box;
+  margin-top: 25px;
+  margin-right: -10px; /* Add some space between form and workplace list */
+  width: calc(68% - 370px); /* Reduce width by 100px more (total 370px reduction) */
+  height: 530px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+@media (max-width: 768px) {
+  .workplace-form-container {
+    width: calc(90% - 340px); /* Reduce width by 100px more (total 340px reduction) */
+    padding: 55px 20px 55px 20px; /* Reduced horizontal padding from 30px to 20px */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+}
+
+@media (max-width: 480px) {
+  .workplace-form-container {
+    width: calc(95% - 340px); /* Reduce width by 100px more (total 340px reduction) */
+    padding: 50px 15px 50px 15px; /* Reduced horizontal padding from 20px to 15px */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+}
+
+.form-card h2 {
+  text-align: center; /* Center the title */
+  color: #000000;
+  margin-bottom: 15px;
+  font-size: 1.2rem; /* Increased by 1 point from 1.1rem */
+  margin-top: -30px;
+}
+
+.form-group {
+  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 7px;
+}
+
+/* Specific styling for the row containing Phone, SGK Sicil No, and Date fields */
+.form-row:nth-child(2) {
+  gap: 30px; /* Increase gap to create more space between fields */
+  margin-bottom: 17px; /* Increase spacing */
+}
+
+#registrationDate {
+  margin-left: 2px; /* Shift date field 10px to the right */
+}
+
+/* Specific width adjustment for SGK Sicil No field */
+#sskRegistrationNo {
+  width: calc(90% + 55px); /* Restore to original +25px width */
+  margin-right: 50px; /* Add space between SGK sicil no and date field */
+  margin-left: -10px; /* Shift SGK Sicil No field 15px to the left */
+}
+
+/* Adjust the flex properties to ensure proper spacing */
+.form-row:nth-child(2) .form-group {
+  flex: 1;
+}
+
+/* Make the date field slightly smaller to create better balance */
+.form-row:nth-child(2) .form-group:nth-child(3) {
+  flex: 0.8;
+}
+
+.form-row:nth-child(3) {
+  margin-bottom: 17px; /* Increase spacing for the date row */
+}
+
+.form-col {
+  flex: 1;
+  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 3px;
+  color: #000000;
+  font-weight: 500;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+}
+
+/* Specific styling for SGK Sicil No row to increase spacing */
+.sgk-row {
+  margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
+  gap: 45px; /* Increase gap between Vergi Dairesi, Vergi No, and Fiyat fields by 30px total (from 15px to 45px) */
+}
+
+/* Specific styling for risk level row */
+.risk-level-row {
+  margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
+  display: flex;
+  gap: 10px;
+}
+
+.risk-level-row .form-group {
+  flex: 1;
+  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
+}
+
+.risk-level-row .form-group label {
+  margin-bottom: 3px;
+}
+
+.risk-level-row .form-group select {
+  width: 100%;
+  padding: 3px; /* Reduced padding from 4px to 3px */
+  border: 1px solid #000000; /* Explicit black borders for better visibility */
+  border-radius: 5px;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+}
+
+.risk-level-row .form-group select:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific styling for assignment row to ensure equal width fields */
+.assignment-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
+}
+
+.assignment-row .form-group {
+  flex: 1;
+  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
+}
+
+.assignment-row .form-group label {
+  margin-bottom: 3px;
+}
+
+.assignment-row .form-group select {
+  width: 100%;
+  padding: 3px; /* Reduced padding from 4px to 3px */
+  border: 1px solid #000000; /* Explicit black borders for better visibility */
+  border-radius: 5px;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+}
+
+.assignment-row .form-group select:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.assignment-row .form-group select:disabled {
+  background-color: #f8f8f8;
+  cursor: not-allowed;
+}
+
+/* Specific styling for workplace name and address row to ensure equal width fields */
+.workplace-info-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
+}
+
+.workplace-info-row .form-group {
+  flex: 1;
+  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
+}
+
+.workplace-info-row .form-group:first-child {
+  flex: 0.8; /* Reduce width of workplace name field */
+}
+
+.workplace-info-row .form-group:last-child {
+  flex: 1.0; /* Reduce width of address field by 20px (from 1.2 to 1.0) */
+}
+
+.workplace-info-row .form-group label {
+  margin-bottom: 3px;
+}
+
+.workplace-info-row .form-group input,
+.workplace-info-row .form-group textarea {
+  width: 100%;
+  padding: 3px; /* Reduced padding from 4px to 3px */
+  border: 1px solid #000000; /* Explicit black borders for better visibility */
+  border-radius: 5px;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+}
+
+.workplace-info-row .form-group input:focus,
+.workplace-info-row .form-group textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.workplace-info-row .form-group textarea {
+  height: calc(2.5em + 16px - 10px);
+  resize: vertical;
+}
+
+.form-group {
+  margin-bottom: 2px; /* Minimal vertical spacing */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 3px; /* Minimal vertical spacing */
+  color: #000000;
+  font-weight: 500;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  white-space: nowrap;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 6px; /* Increased padding from 4px to 6px */
+  border: 1px solid #000000;
+  border-radius: 5px;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+  height: 25px; /* Increased height by 5px */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific height adjustments for risk level, employee count, tracking expert, and date fields */
+#riskLevel,
+#employeeCount,
+#trackingExpertId,
+#registrationDate {
+  height: 30px; /* Standardized height as per user preference */
+}
+
+/* Specific style for address textarea to maintain proper height */
+#address {
+  height: calc(2.5em + 16px - 10px);
+  resize: vertical;
+}
+
+/* Price field styling - remove TL suffix */
+#price {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 2px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 3px; /* Minimal vertical spacing */
+  color: #000000;
+  font-weight: 500;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  white-space: nowrap;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 3px; /* Reduced padding from 4px to 3px */
+  border: 1px solid #000000; /* Explicit black borders for better visibility */
+  border-radius: 5px;
+  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background-color: #f8f8f8;
+  cursor: not-allowed;
+}
+
+/* Custom style for address textarea */
+#address {
+  height: calc(2.5em + 16px - 10px);
+  resize: vertical;
+}
+
+/* Custom style for SGK sicil no input - make it 60px wider */
+#sskRegistrationNo {
+  width: calc(100% + 50px);
+  max-width: calc(98% + 25px);
+  margin-right: 50px; /* Add space between SGK sicil no and date field */
+}
+
+/* Price field styling - remove TL suffix */
+#price {
+  width: 100%;
+}
+
+/* Shift labels for better alignment */
+label[for="phone"] {
+  margin-left: 0;
+}
+
+label[for="employeeCount"] {
+  margin-left: 0;
+}
+
+label[for="registrationDate"] {
+  margin-left: 0;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 11px; /* Increased padding from 9px to 11px */
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  height: 35px; /* Increased height by 5px */
+}
+
+.submit-button:hover {
+  background-color: #357ae8;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Styles for smaller buttons */
+.small-button {
+  width: 48%;
+  padding: 11px; /* Increased padding from 9px to 11px */
+  margin-right: 4%;
+  display: inline-block;
+  box-sizing: border-box;
+  height: 35px; /* Increased height by 5px */
+}
+
+.small-button:last-child {
+  margin-right: 0;
+}
+
+/* Styles for the clear button */
+.clear-button {
+  width: 48%;
+  padding: 11px; /* Increased padding from 9px to 11px */
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  display: inline-block;
+  box-sizing: border-box;
+  height: 35px; /* Increased height by 5px */
+}
+
+.clear-button:hover {
+  background-color: #b71c1c; /* Dark red on hover to match other "Temizle" buttons */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 4px;
+    font-size: 14px;
+  }
+  
+  .submit-button {
+    padding: 10px;
+    font-size: 0.6rem;
+  }
+  
+  .small-button {
+    width: 24%;
+    padding: 7px;
+  }
+  
+  .clear-button {
+    width: 25%;
+    padding: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .small-button {
+    width: 50%;
+    margin-bottom: 10px;
+  }
+  
+  .clear-button {
+    width: 25%;
+    margin-bottom: 10px;
+  }
+  
+  .form-actions {
+    flex-direction: row;
+    gap: 5px;
+  }
+}
+
+.error-text {
+  color: #c62828;
+  font-size: 0.775rem;
+  margin-top: 5px;
+  display: block;
+}
+
+.info-text {
+  color: #666;
+  font-size: 0.775rem;
+  font-style: italic;
+  display: block;
+  margin-top: 5px;
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.2);
+}
+
+.error-message {
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.success-message {
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.dashboard-content {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Responsive form elements */
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 4px;
+    font-size: 14px;
+  }
+  
+  .submit-button {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .form-card h2 {
+    font-size: 1.0rem;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 4px;
+  }
+  
+  .form-group {
+    margin-bottom: 7px;
+  }
+}
+
+/* Styles for registered workplaces section - Remove all card-like styling */
+.workplaces-container {
+  flex: 1;
+  margin: 1px 0 0 0; /* Move down by 10px */
+  padding: 25px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  align-self: flex-start;
+  width: auto;
+  min-width: unset;
+  max-width: unset;
+}
+
+.header-row {
+  display: flex;
+  background-color: #4CAF50 !important;
+  color: white !important;
+  font-weight: bold;
+  padding: 12px 15px;
+  font-size: 11px;
+  cursor: default !important;
+  border-bottom: 3px solid #45a049; /* Thick bottom border for visual separation */
+  transition: none !important;
+}
+
+.header-cell {
+  flex: 0.5;
+  padding: 0 10px;
+  text-align: left;
+  background-color: transparent !important;
+  transition: none !important;
+  font-size: 11px;
+}
+
+.header-cell:first-child {
+  text-align: left;
+}
+
+/* Add 5px gap after İş Yeri Adı header */
+.header-cell:first-child {
+  margin-right: 5px;
+}
+
+/* Shift headers (except İş Yeri Adı) 30px to the left */
+.header-cell:nth-child(n+2) {
+  margin-left: -30px;
+}
+
+.workplaces-list {
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #faf8f8;
+}
+
+.workplace-row {
+  display: flex;
+  padding: 2px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 5px 0;
+  background-color: transparent;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  height: 24px;
+  align-items: center;
+}
+
+.workplace-row:hover {
+  background-color: #e8f5e9; /* Light green hover color as requested */
+  border-color: #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.workplace-cell {
+  padding: 1px 8px;
+  text-align: left;
+  font-size: 11px;
+  height: 18px; /* Match the button height */
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center; /* Center content vertically */
+}
+
+.workplace-cell:first-child {
+  text-align: left;
+  flex: 0;
+}
+
+/* Add 5px gap after İş Yeri Adı data cell */
+.workplace-cell:first-child {
+  margin-right: 5px;
+}
+
+/* Shift data cells (except İş Yeri Adı) 20px to the left */
+.workplace-cell:nth-child(n+2) {
+  margin-left: -20px;
+}
+
+.no-workplaces {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* Risk level text colors */
+.risk-level-low {
+  color: green;
+  font-weight: bold;
+}
+
+.risk-level-dangerous {
+  color: orange;
+  font-weight: bold;
+}
+
+.risk-level-veryDangerous {
+  color: red;
+  font-weight: bold;
+}
+
+/* Modal styles - Using more specific selectors to avoid conflicts */
+.dashboard-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw; /* Görünüm genişliği */
+    height: 100vh; /* Görünüm yüksekliği */
+    background-color: rgba(0, 0, 0, 0.5); /* Yarı saydam arka plan */
+    z-index: 1000;
+    
+    /* İÇERİĞİ ORTALAMAK İÇİN CRITICAL KISIM: */
+    display: flex;
+    justify-content: center; /* Yatayda ortala */
+    align-items: center; /* Dikeyde ortala */
+    overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu çıksın */
+    padding: 20px; /* Kenarlardan biraz boşluk bırakın */
+}
+
+.dashboard-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    max-width: 900px; /* Modalın maksimum genişliği */
+    width: 90%; /* Kapsayıcıya göre oransal genişlik */
+    
+    /* Gerekirse, içeriğin kendisini Flexbox yapabilirsiniz: */
+    /* display: flex; 
+    flex-direction: column; */
+}
+
+.modal-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 2px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 12px;
+  overflow-y: hidden;
+  flex: 1;
+}
+
+.modal-body .form-group {
+  margin-bottom: -1px;
+}
+
+.modal-body .form-label {
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 0px;
+  color: #092d53;
+}
+
+.modal-body .form-input,
+.modal-body .form-select,
+.modal-body .form-textarea {
+  padding: 4px 6px;
+  border: 1px solid #0c0c0c;
+  border-radius: 3px;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-size: 10px;
+  transition: border-color 0.2s;
+  width: 99%;
+  box-sizing: border-box;
+  margin-left: -3px;
+  margin-right: 3px;
+}
+
+.modal-body .form-input:focus,
+.modal-body .form-select:focus,
+.modal-body .form-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-body .form-textarea {
+  min-height: 35px;
+  resize: vertical;
+}
+
+.modal-body .form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -2px -4px; /* Reduced from 3px to -2px (5px less) */
+  justify-content: center;
+}
+
+.modal-body .form-col {
+  flex: 1;
+  min-width: 80px;
+  padding: 0px 4px;
+  margin-bottom: 3px; /* Reduced from 8px to 3px (5px less) */
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 0px 10px;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.btn:active {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0078d7;
+  color: white;
+  border-color: #005a9e;
+}
+
+.btn-primary:hover {
+  background: #0066b4;
+  border-color: #004578;
+}
+
+.btn-primary:active {
+  background: #005a9e;
+  border-color: #003a66;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border-color: #ccc;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.btn-danger {
+  background: #d32f2f;
+  color: white;
+  border-color: #b71c1c;
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+  border-color: #8b0000;
+}
+
+/* Popup styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  place-items: center;
+  z-index: 1001;
+  transform: translateZ(0); /* Force hardware acceleration */
+  -webkit-transform: translateZ(0);
+  /* Ensure proper centering even with interference */
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  /* Override any potential inherited styles */
+  box-sizing: border-box;
+  inset: 0;
+}
+
+.popup-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 400px;
+  max-width: 90vw;
+  position: relative;
+  margin: 0 auto;
+  transform: translateZ(0); /* Force hardware acceleration */
+  -webkit-transform: translateZ(0);
+  /* Ensure proper centering */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  /* Override any potential inherited styles */
+  box-sizing: border-box;
+}
+
+.popup-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.popup-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.popup-body {
+  padding: 20px;
+}
+
+.popup-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.alert-warning {
+  background-color: #fff4ce;
+  border: 1px solid #ffd782;
+  color: #8a6d3b;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+.popup-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  min-width: 300px;
+  text-align: center;
+  border-radius: 4px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Approval status button styles for dashboard */
+.dashboard-approval-status {
+  padding: 2px 6px; /* Reduced padding to fit better */
+  border-radius: 2px;
+  font-size: 10px; /* Reduced font size to fit better */
+  font-weight: 500;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px; /* Set fixed height to fit within row */
+  border: none;
+  min-width: 90px; /* Reduced minimum width */
+  transition: all 0.3s ease;
+  cursor: default; /* Not clickable since no updates will be made */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.dashboard-approval-status.atama {
+  background-color: #f44336; /* Red color for "Atama yapılacak" */
+  color: white;
+}
+
+.dashboard-approval-status.atama:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
+
+.dashboard-approval-status.bekliyor {
+  background-color: #ff9800; /* Orange color for "Onay bekleniyor" */
+  color: white;
+}
+
+.dashboard-approval-status.bekliyor:hover {
+  background-color: #f57c00; /* Darker orange on hover */
+}
+
+.dashboard-approval-status.onaylandi {
+  background-color: #4caf50; /* Green color for "Onaylandı" */
+  color: white;
+}
+
+.dashboard-approval-status.onaylandi:hover {
+  background-color: #388e3c; /* Darker green on hover */
+}
+
+.dashboard-approval-status.active {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+  transform: scale(1.05);
+}
+
+.approval-status-button {
+  padding: 2px 6px;
+  font-size: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  color: black;
+  cursor: pointer;
+  min-width: 90px;
+  transition: all 0.2s ease;
+}
+
+.approval-status-button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.approval-status-button.active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.approval-status-button.edit {
+  padding: 2px 6px;
+  font-size: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #0078d7;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.approval-status-button.edit:hover {
+  background-color: #0066b4;
+  border-color: #005a9e;
+}
+
+.approval-status-buttons-container {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Override styles for the clickable status text in workplace cells */
+.workplace-cell .approval-status-button {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px !important;
+  width: 100%;
+  color: #333;
+  text-decoration: underline;
+  outline: none !important;
+  min-width: auto !important;
+}
+
+.workplace-cell .approval-status-button:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #0078d7;
+}
+
+.workplace-cell .approval-status-button:focus {
+  outline: none !important;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .assignment-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .workplace-info-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.form-column {
+  flex: 1;
+}

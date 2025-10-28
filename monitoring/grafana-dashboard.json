@@ -1,0 +1,132 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OSGB System Monitoring",
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "25s",
+    "rows": [
+      {
+        "title": "System Overview",
+        "height": "250px",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Backend API Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])",
+                "legendFormat": "{{method}} {{path}}"
+              }
+            ],
+            "xaxis": {
+              "mode": "time"
+            },
+            "yaxes": [
+              {
+                "format": "s",
+                "label": "Response Time"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Active Connections",
+            "type": "singlestat",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "osgb_active_connections",
+                "legendFormat": "Active Connections"
+              }
+            ],
+            "valueName": "current"
+          }
+        ]
+      },
+      {
+        "title": "Database Metrics",
+        "height": "250px",
+        "panels": [
+          {
+            "id": 3,
+            "title": "Database Connections",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "mysql_global_status_threads_connected",
+                "legendFormat": "Connected"
+              },
+              {
+                "expr": "mysql_global_status_threads_running",
+                "legendFormat": "Running"
+              }
+            ],
+            "xaxis": {
+              "mode": "time"
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": "Connections"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Slow Queries",
+            "type": "singlestat",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(mysql_global_status_slow_queries[5m])",
+                "legendFormat": "Slow Queries"
+              }
+            ],
+            "valueName": "current"
+          }
+        ]
+      },
+      {
+        "title": "Frontend Metrics",
+        "height": "250px",
+        "panels": [
+          {
+            "id": 5,
+            "title": "Frontend Page Load Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(frontend_page_load_time_seconds_sum[5m]) / rate(frontend_page_load_time_seconds_count[5m])",
+                "legendFormat": "{{page}}"
+              }
+            ],
+            "xaxis": {
+              "mode": "time"
+            },
+            "yaxes": [
+              {
+                "format": "s",
+                "label": "Load Time"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

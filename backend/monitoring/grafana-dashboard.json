@@ -1,0 +1,222 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OSGB System Monitoring",
+    "tags": ["osgb", "production"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "25s",
+    "rows": [
+      {
+        "title": "System Overview",
+        "panels": [
+          {
+            "id": 1,
+            "title": "CPU Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                "legendFormat": "CPU Usage %"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "percent",
+                "label": "CPU Usage %"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Memory Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
+                "legendFormat": "Used Memory"
+              },
+              {
+                "expr": "node_memory_MemTotal_bytes",
+                "legendFormat": "Total Memory"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "bytes",
+                "label": "Memory"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Application Metrics",
+        "panels": [
+          {
+            "id": 3,
+            "title": "API Request Rate",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total[5m])",
+                "legendFormat": "{{method}} {{handler}} - {{status}}"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "reqps",
+                "label": "Requests per second"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "API Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "Median"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "s",
+                "label": "Response Time"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Active Users",
+            "type": "stat",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "count(user_sessions_active)",
+                "legendFormat": "Active Users"
+              }
+            ],
+            "options": {
+              "reduceOptions": {
+                "values": false,
+                "calcs": ["lastNotNull"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Database Metrics",
+        "panels": [
+          {
+            "id": 6,
+            "title": "Database Connections",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "pg_stat_database_numbackends",
+                "legendFormat": "{{datname}}"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "short",
+                "label": "Connections"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 7,
+            "title": "Database Query Performance",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(pg_stat_database_xact_commit[5m])",
+                "legendFormat": "{{datname}} - Commits"
+              },
+              {
+                "expr": "rate(pg_stat_database_xact_rollback[5m])",
+                "legendFormat": "{{datname}} - Rollbacks"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "short",
+                "label": "Transactions per second"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Security Metrics",
+        "panels": [
+          {
+            "id": 8,
+            "title": "Failed Login Attempts",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(auth_failed_logins_total[5m])",
+                "legendFormat": "Failed Logins"
+              }
+            ],
+            "yaxes": [
+              {
+                "format": "short",
+                "label": "Attempts per second"
+              },
+              {
+                "format": "short"
+              }
+            ]
+          },
+          {
+            "id": 9,
+            "title": "Security Events",
+            "type": "logs",
+            "datasource": "Loki",
+            "targets": [
+              {
+                "expr": "{job=\"security-logs\"} |~ \"WARNING|ERROR\"",
+                "legendFormat": "Security Events"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

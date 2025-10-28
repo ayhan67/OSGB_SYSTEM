@@ -1,0 +1,418 @@
+.dsp-card-page {
+  padding: 0;
+  position: relative;
+  height: calc(100vh - 80px); /* Adjust for navbar height (24px padding + content) */
+  overflow: visible;
+  background-color: transparent;
+  margin-top: 0;
+}
+
+.dsp-page-layout {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  height: 100%;
+  background-color: transparent;
+}
+
+.new-dsp-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 200px);
+}
+
+.dsps-list-section {
+  position: absolute;
+  top: 19.9%;
+  left: 78%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  max-width: 580px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 100;
+}
+
+.statistics-section {
+  flex: 2;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+.draggable-card {
+  position: relative;
+  height: 100%;
+  box-shadow: none;
+}
+
+/* Specific styling for statistics card to make it flexible in height */
+.statistics-card {
+  height: auto;
+  flex: 0 0 auto;
+}
+
+/* Remove overflow for statistics card content to allow natural height */
+.statistics-card .window-content {
+  overflow: visible;
+}
+
+/* More specific selector to override index.css */
+.dsp-card-page .window {
+  border-radius: 0;
+  box-shadow: none;
+  background-color: white; /* Make window background white */
+  border: none; /* Remove blue border */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.window-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 6px 10px; /* Reduced padding */
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  user-select: none;
+  cursor: move;
+  font-size: 14px; /* Kept slightly larger for header */
+  margin: 0; /* Remove any margin */
+}
+
+.window-controls {
+  display: flex;
+}
+
+.window-button {
+  width: 28px; /* Reduced size */
+  height: 20px; /* Reduced size */
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 14px; /* Kept slightly larger for button */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin-left: 6px; /* Reduced margin */
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.window-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.window-content {
+  padding: 0 20px 0 20px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  flex: 1;
+  overflow: auto;
+  background-color: white; /* Make window content white */
+  margin: 0; /* Remove any margin */
+}
+
+/* Resize handles - hidden since cards are now fixed size */
+.resize-handle {
+  display: none !important;
+}
+
+/* Corner handles */
+.resize-nw {
+  display: none !important;
+}
+
+.resize-ne {
+  display: none !important;
+}
+
+.resize-sw {
+  display: none !important;
+}
+
+.resize-se {
+  display: none !important;
+}
+
+/* Edge handles */
+.resize-n {
+  display: none !important;
+}
+
+.resize-s {
+  display: none !important;
+}
+
+.resize-w {
+  display: none !important;
+}
+
+.resize-e {
+  display: none !important;
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #555;
+  font-size: 12px; /* Reduced from 14px */
+  margin-top: 10px; /* Move labels down by 10px */
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 6px 10px; /* Reduced padding */
+  border: 2px solid #888; /* Updated to 2px solid #888 as per specification */
+  border-radius: 4px;
+  background-color: #fff;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-size: 12px; /* Reduced from 14px */
+  box-sizing: border-box;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: #0078d7;
+  box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.2);
+}
+
+.btn {
+  padding: 6px 12px; /* Reduced padding */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 12px; /* Reduced from 14px */
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.btn:active {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0078d7;
+  color: white;
+  border-color: #005a9e;
+}
+
+.btn-primary:hover {
+  background: #0066b4;
+  border-color: #004578;
+}
+
+.btn-primary:active {
+  background: #005a9e;
+  border-color: #003a66;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 0px;
+}
+
+.form-col {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.alert-warning {
+  background-color: #fff4ce;
+  border: 1px solid #ffd782;
+  color: #8a6d3b;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+/* Add styles for the DSPs list section */
+.dsps-container {
+  width: 100%;
+}
+
+.header-row {
+  display: flex;
+  background-color: #45a049 !important;
+  color: white !important;
+  font-weight: bold;
+  padding: 12px 15px;
+  font-size: 12px;
+  cursor: default !important;
+  border-bottom: 3px solid #45a049;
+  transition: none !important;
+}
+
+.header-cell {
+  flex: 1;
+  padding: 0 10px;
+  text-align: left;
+}
+
+/* Adjust header cells for DSP page (4 columns) - restored to original proportions */
+.dsps-container .header-row .header-cell:nth-child(1) {
+  flex: 1.3; /* Ad column */
+}
+
+.dsps-container .header-row .header-cell:nth-child(2) {
+  flex: 1.3; /* Soyad column */
+}
+
+.dsps-container .header-row .header-cell:nth-child(3) {
+  flex: 1; /* Toplam DK column */
+}
+
+.dsps-container .header-row .header-cell:nth-child(4) {
+  flex: 1; /* Atana DK column */
+}
+
+.dsps-list {
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: transparent;
+}
+
+.dsp-row {
+  display: flex;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 5px 0;
+  background-color: transparent;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  align-items: center;
+}
+
+/* Adjust data cells for DSP page (4 columns) - restored to original proportions */
+.dsp-row .dsp-cell:nth-child(1) {
+  flex: 1.3; /* Ad column */
+}
+
+.dsp-row .dsp-cell:nth-child(2) {
+  flex: 1.3; /* Soyad column */
+}
+
+.dsp-row .dsp-cell:nth-child(3) {
+  flex: 1; /* Toplam DK column */
+}
+
+.dsp-row .dsp-cell:nth-child(4) {
+  flex: 1; /* Atana DK column */
+}
+
+.dsp-row:hover {
+  background-color: #e8f5e9;
+  border-color: #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.dsp-cell {
+  flex: 1;
+  padding: 1px 8px;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+}
+
+.no-dsps {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .dsp-page-layout {
+    flex-direction: column;
+  }
+  
+  .new-dsp-section,
+  .statistics-section {
+    min-width: unset;
+    max-width: unset;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* Specific styling for the "Temizle" button - red by default, dark red on hover */
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions .btn {
+  height: 30px; /* Increased height by 5px from default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-actions .btn-secondary {
+  background: #d32f2f; /* Red color */
+  color: white;
+  border-color: #d32f2f;
+}
+
+.form-actions .btn-secondary:hover {
+  background: #b71c1c; /* Dark red on hover */
+  color: white;
+  border-color: #b71c1c;
+}

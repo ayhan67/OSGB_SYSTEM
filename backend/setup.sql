@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS osgb_db;
+CREATE USER IF NOT EXISTS 'osgb_user'@'%' IDENTIFIED BY 'secure_password_123!';
+GRANT ALL PRIVILEGES ON osgb_db.* TO 'osgb_user'@'%';
+FLUSH PRIVILEGES;

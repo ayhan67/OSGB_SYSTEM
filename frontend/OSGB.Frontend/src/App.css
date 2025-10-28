@@ -1,0 +1,137 @@
+.app {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.login-window {
+  width: 100%;
+  max-width: 350px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.login-content {
+  padding: 30px;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.login-title {
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  color: #0078d7;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+
+
+.login-logo p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.login-form {
+  margin-top: 20px;
+}
+
+.login-input-group {
+  margin-bottom: 20px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-size: 12px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  height: 32px;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #0078d7;
+  box-shadow: 0 0 0 1px rgba(0, 120, 215, 0.2);
+}
+
+.login-button {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  border: 1px solid #005a9e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 32px;
+}
+
+.login-button:hover {
+  background: linear-gradient(to right, #0066b4, #004578);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-container {
+  padding: 15px;
+}
+
+.registration-form {
+  max-width: 600px;
+}
+
+.workplace-form {
+  max-width: 800px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-col {
+  flex: 1;
+}
+
+.assignment-section {
+  background-color: #f0f0f0;
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid #c0c0c0;
+}
+
+.assignment-warning {
+  color: #cc0000;
+  font-weight: 500;
+  margin: 6px 0;
+  font-size: 12px;
+}

@@ -1,0 +1,1027 @@
+.expert-card-page {
+  padding: 0;
+  position: relative;
+  height: calc(100vh - 80px); /* Adjust for navbar height (24px padding + content) */
+  overflow: visible;
+  background-color: transparent;
+  margin-top: 0;
+}
+
+.expert-page-layout {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  height: 100%;
+  background-color: transparent;
+}
+
+.new-expert-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 200px);
+}
+
+.statistics-section {
+  flex: 2;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+.draggable-card {
+  position: relative;
+  height: 100%;
+  box-shadow: none;
+}
+
+/* Specific styling for statistics card to make it flexible in height */
+.statistics-card {
+  height: auto;
+  flex: 0 0 auto;
+}
+
+/* Remove overflow for statistics card content to allow natural height */
+.statistics-card .window-content {
+  overflow: visible;
+}
+
+/* More specific selector to override index.css */
+.expert-card-page .window {
+  border-radius: 0;
+  box-shadow: none;
+  background-color: white; /* Make window background white */
+  border: none; /* Remove blue border */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.window-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 6px 10px; /* Reduced padding */
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  user-select: none;
+  cursor: move;
+  font-size: 14px; /* Kept slightly larger for header */
+  margin: 0; /* Remove any margin */
+}
+
+.window-controls {
+  display: flex;
+}
+
+.window-button {
+  width: 28px; /* Reduced size */
+  height: 20px; /* Reduced size */
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 14px; /* Kept slightly larger for button */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin-left: 6px; /* Reduced margin */
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.window-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.window-content {
+  padding: 0 20px 0 20px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  flex: 1;
+  overflow: auto;
+  background-color: white; /* Make window content white */
+  margin: 0; /* Remove any margin */
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background-color: transparent; /* Make handles transparent */
+  z-index: 1001;
+  border-radius: 1px;
+  /* Keep the handles functional but invisible */
+}
+
+/* Corner handles */
+.resize-nw {
+  width: 12px;
+  height: 12px;
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+  background-color: transparent; /* Make handles transparent */
+  border-radius: 2px;
+}
+
+.resize-ne {
+  width: 12px;
+  height: 12px;
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+  background-color: transparent; /* Make handles transparent */
+  border-radius: 2px;
+}
+
+.resize-sw {
+  width: 12px;
+  height: 12px;
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+  background-color: transparent; /* Make handles transparent */
+  border-radius: 2px;
+}
+
+.resize-se {
+  width: 12px;
+  height: 12px;
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+  background-color: transparent; /* Make handles transparent */
+  border-radius: 2px;
+}
+
+/* Edge handles */
+.resize-n {
+  width: 100%;
+  height: 6px;
+  top: -3px;
+  left: 0;
+  cursor: n-resize;
+  background-color: transparent; /* Make handles transparent */
+}
+
+.resize-s {
+  width: 100%;
+  height: 6px;
+  bottom: -3px;
+  left: 0;
+  cursor: s-resize;
+  background-color: transparent; /* Make handles transparent */
+}
+
+.resize-w {
+  width: 6px;
+  height: 100%;
+  top: 0;
+  left: -3px;
+  cursor: w-resize;
+  background-color: transparent; /* Make handles transparent */
+}
+
+.resize-e {
+  width: 6px;
+  height: 100%;
+  top: 0;
+  right: -3px;
+  cursor: e-resize;
+  background-color: transparent; /* Make handles transparent */
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #555;
+  font-size: 12px; /* Reduced from 14px */
+  margin-top: 10px; /* Move labels down by 10px */
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 6px 10px; /* Reduced padding */
+  border: 2px solid #888; /* Updated to 2px solid #888 as per specification */
+  border-radius: 4px;
+  background-color: #fff;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-size: 12px; /* Reduced from 14px */
+  box-sizing: border-box;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: #0078d7;
+  box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.2);
+}
+
+.btn {
+  padding: 6px 12px; /* Reduced padding */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 12px; /* Reduced from 14px */
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.btn:active {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0078d7;
+  color: white;
+  border-color: #005a9e;
+}
+
+.btn-primary:hover {
+  background: #0066b4;
+  border-color: #004578;
+}
+
+.btn-primary:active {
+  background: #005a9e;
+  border-color: #003a66;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 0px; /* Reduced from 16px to 0px to decrease space by 16px total */
+}
+
+.form-col {
+  flex: 1;
+}
+
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.alert-warning {
+  background-color: #fff4ce;
+  border: 1px solid #ffd782;
+  color: #8a6d3b;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+/* Expert list styles */
+.expert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.experts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px; /* Reduced padding */
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  font-size: 12px; /* Reduced from 14px */
+  border-bottom: 1px solid #ddd;
+}
+
+.header-cell {
+  flex: 1;
+  text-align: center;
+}
+
+.experts-body {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  background-color: transparent;
+}
+
+.expert-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px; /* Reduced padding */
+  border: 1px solid #ddd;
+  border-top: none;
+  font-size: 12px; /* Reduced from 14px */
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.expert-row:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.expert-row:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.expert-row:first-child {
+  border-top: 1px solid #ddd;
+}
+
+.expert-info {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.expert-name {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-phone {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-class {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-minutes {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-small {
+  padding: 2px 8px;
+  font-size: 10px;
+  height: 20px;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon.edit {
+  background-color: #4caf50; /* Green background */
+  border-color: #45a049; /* Darker green border */
+  color: white; /* White text for better contrast */
+}
+
+.btn-icon.edit:hover {
+  background-color: #45a049; /* Darker green on hover */
+  border-color: #3d8b40; /* Even darker border on hover */
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-icon.delete {
+  background-color: #ffe2e2;
+  border-color: #ffaaaa;
+  color: #d32f2f;
+}
+
+.btn-icon.delete:hover {
+  background-color: #ffd0d0;
+  border-color: #ff8888;
+  color: #d32f2f;
+}
+
+.btn-icon:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* Styles for registered experts displayed as individual rows on the right-center */
+.registered-experts-container {
+  position: relative;
+}
+
+.registered-experts-container .expert-info-display {
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  color: black !important;
+}
+
+.registered-experts-container .expert-name-display {
+  font-weight: 500;
+  font-size: 12px;
+  color: black !important;
+}
+
+.registered-experts-container .expert-phone-display {
+  font-size: 11px;
+  color: black !important;
+}
+
+.expert-card-page .registered-experts-container .expert-info-display {
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  color: black !important;
+}
+
+.expert-card-page .registered-experts-container .expert-name-display {
+  font-weight: 500;
+  font-size: 12px;
+  color: black !important;
+}
+
+.expert-card-page .registered-experts-container .expert-phone-display {
+  font-size: 11px;
+  color: black !important;
+}
+
+/* Additional specificity for expert display elements */
+.expert-card-page div div div.expert-info-display {
+  color: black !important;
+}
+
+.expert-card-page div div div.expert-name-display {
+  color: black !important;
+}
+
+.expert-card-page div div div.expert-phone-display {
+  color: black !important;
+}
+
+/* Override global body color with highest specificity */
+.expert-card-page .registered-experts-container div.expert-info-display,
+.expert-card-page .registered-experts-container div.expert-name-display,
+.expert-card-page .registered-experts-container div.expert-phone-display {
+  color: black !important;
+}
+
+/* Ensure text color is black even with inline styles */
+.expert-info-display,
+.expert-name-display,
+.expert-phone-display {
+  color: black !important;
+}
+
+/* Highest specificity to override all other styles */
+div.expert-card-page div.registered-experts-container div div.expert-info-display,
+div.expert-card-page div.registered-experts-container div div.expert-name-display,
+div.expert-card-page div.registered-experts-container div div.expert-phone-display {
+  color: black !important;
+}
+
+/* Additional override for any nested elements */
+.expert-info-display *,
+.expert-name-display *,
+.expert-phone-display * {
+  color: black !important;
+}
+
+/* Ultimate override with ID-based specificity */
+#expert-card-page .registered-experts-container .expert-info-display,
+#expert-card-page .registered-experts-container .expert-name-display,
+#expert-card-page .registered-experts-container .expert-phone-display {
+  color: black !important;
+}
+
+/* Ultimate override for all child elements */
+#expert-card-page .registered-experts-container .expert-info-display *,
+#expert-card-page .registered-experts-container .expert-name-display *,
+#expert-card-page .registered-experts-container .expert-phone-display * {
+  color: black !important;
+}
+
+/* Override inherited color from body */
+.expert-card-page {
+  color: black;
+}
+
+.registered-experts-container {
+  color: black;
+}
+
+.expert-class-display {
+  font-size: 12px;
+  font-weight: bold;
+  color: #0078d7;
+  background-color: #e1f0fa;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100px;
+  height: 250px;
+  max-width: 100px;
+  max-height: 250px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2001;
+}
+
+/* Add specific styling for modal header to ensure visibility */
+.modal-content .window {
+  border: none;
+  box-shadow: none;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-content .window-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 8px 12px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  user-select: none;
+  cursor: move;
+}
+
+.modal-content .window-header span {
+  font-size: 12px; /* Kept slightly larger for modal header */
+  font-weight: 600;
+}
+
+.modal-content .window-button {
+  width: 24px; /* Reduced size */
+  height: 18px; /* Reduced size */
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 12px; /* Kept slightly larger for button */
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin-left: 4px; /* Reduced margin */
+  transition: all 0.2s ease;
+}
+
+.modal-content .window-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Make the window close button more visible */
+.window-button {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.window-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.window-button:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.modal-content .window-content {
+  padding: 0;
+  flex: 1;
+  overflow: auto;
+  max-height: calc(90vh - 60px); /* Adjust based on header height */
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0.5cm 10px 0.5cm; /* 1cm spacing on left and right */
+}
+
+.edit-form .form-group {
+  margin-bottom: 0;
+}
+
+.edit-form .form-row {
+  margin-bottom: 0;
+}
+
+.expert-detail-info {
+  margin-bottom: 10px;
+  margin-top: 0;
+  padding-top: 0;
+  padding: 10px 0.5cm 10px 0.5cm; /* 1cm spacing on left and right */
+}
+
+.expert-detail-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  margin: 0;
+}
+
+.expert-detail-row:first-child {
+  padding-top: 0;
+}
+
+.expert-detail-row:last-child {
+  border-bottom: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 0.5px solid #eee;
+  padding: 0 0.5cm 10px 0.5cm; /* 1cm spacing on left and right */
+}
+
+.btn-danger {
+  background: #d32f2f;
+  color: white;
+  border-color: #b71c1c;
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+  border-color: #8b0000;
+}
+
+.btn-danger:active {
+  background: #8b0000;
+  border-color: #600000;
+}
+
+/* Add specific styling for the delete text in the modal */
+.modal-actions .btn-danger {
+  background: #d32f2f;
+  color: white;
+  border-color: #d32f2f;
+}
+
+.modal-actions .btn-danger:hover {
+  background: #b71c1c;
+  border-color: #b71c1c;
+  color: white;
+}
+
+/* Add specific styling for the close button in the modal */
+.btn-close {
+  background: #80e77c;
+  color: rgb(12, 12, 12);
+  border-color: #080808; /* Match dashboard modal close button border */
+  padding: 2px 8px; /* Match dashboard modal button padding */
+  font-size: 10px; /* Match dashboard modal button font size */
+  border-radius: 3px;
+  min-width: 40px; /* Match dashboard modal button min width */
+  text-align: center;
+  height: 20px; /* Match dashboard modal button height */
+}
+
+.btn-close:hover {
+  background: #826eee; /* Match dashboard modal close button hover */
+  border-color: #484e53; /* Match dashboard modal close button hover border */
+  color: black;
+}
+
+.btn-close:focus {
+  outline: 2px solid #8a8d93; /* Match dashboard modal close button focus */
+  outline-offset: 2px;
+}
+
+/* Make all buttons in modal actions the same size */
+.modal-actions .btn {
+  padding: 4px 8px; /* Match dashboard modal button padding */
+  border: 1px solid #ccc;
+  border-radius: 3px; /* Match dashboard modal button border radius */
+  background: #f0f0f0;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 10px; /* Match dashboard modal button font size */
+  transition: all 0.2s ease;
+  height: 20px; /* Match dashboard modal button height */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions .btn {
+  height: 30px; /* Increased height by 5px from default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Specific styling for the "Temizle" button - red by default, dark red on hover */
+.form-actions .btn-secondary {
+  background: #d32f2f; /* Red color */
+  color: white;
+  border-color: #d32f2f;
+}
+
+.form-actions .btn-secondary:hover {
+  background: #b71c1c; /* Dark red on hover */
+  color: white;
+  border-color: #b71c1c;
+}
+
+/* Styles for the statistics card */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  padding: 10px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #0078d7;
+}
+
+.no-experts {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .expert-page-layout {
+    flex-direction: column;
+  }
+  
+  .new-expert-section,
+  .statistics-section {
+    min-width: unset;
+    max-width: unset;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .experts-header {
+    display: none;
+  }
+  
+  .expert-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 8px;
+  }
+  
+  .expert-info {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .expert-name, .expert-contact, .expert-class, .expert-minutes, .expert-assigned, .expert-remaining {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .expert-name::before, .expert-contact::before, .expert-class::before, 
+  .expert-minutes::before, .expert-assigned::before, .expert-remaining::before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 200px;
+  }
+}
+
+/* Add styles for the experts list section */
+.experts-list-section {
+  position: absolute;
+  top: 19%;
+  left: 78%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  max-width: 580px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 100;
+}
+
+.experts-container {
+  width: 100%;
+}
+
+.header-row {
+  display: flex;
+  background-color: #45a049 !important;
+  color: white !important;
+  font-weight: bold;
+  padding: 12px 15px;
+  font-size: 12px;
+  cursor: default !important;
+  border-bottom: 3px solid #45a049;
+  transition: none !important;
+}
+
+.header-cell {
+  flex: 1;
+  padding: 0 10px;
+  text-align: left;
+}
+
+/* Adjust header cells for expert page (5 columns) - restored to original proportions */
+.experts-container .header-row .header-cell:nth-child(1) {
+  flex: 1.2; /* Ad column */
+}
+
+.experts-container .header-row .header-cell:nth-child(2) {
+  flex: 1.2; /* Soyad column */
+}
+
+.experts-container .header-row .header-cell:nth-child(3) {
+  flex: 0.8; /* Sınıfı column */
+}
+
+.experts-container .header-row .header-cell:nth-child(4) {
+  flex: 1; /* Toplam DK column */
+}
+
+.experts-container .header-row .header-cell:nth-child(5) {
+  flex: 1; /* Atana DK column */
+}
+
+.experts-list {
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: transparent;
+}
+
+.expert-row {
+  display: flex;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 5px 0;
+  background-color: transparent;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  align-items: center;
+}
+
+/* Adjust data cells for expert page (5 columns) - restored to original proportions */
+.expert-row .expert-cell:nth-child(1) {
+  flex: 1.2; /* Ad column */
+}
+
+.expert-row .expert-cell:nth-child(2) {
+  flex: 1.2; /* Soyad column */
+}
+
+.expert-row .expert-cell:nth-child(3) {
+  flex: 0.8; /* Sınıfı column */
+}
+
+.expert-row .expert-cell:nth-child(4) {
+  flex: 1; /* Toplam DK column */
+}
+
+.expert-row .expert-cell:nth-child(5) {
+  flex: 1; /* Atana DK column */
+}
+
+.expert-row:hover {
+  background-color: #e8f5e9;
+  border-color: #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.expert-cell {
+  flex: 1;
+  padding: 1px 8px;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+}
+
+.no-experts {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+  font-size: 12px;
+}

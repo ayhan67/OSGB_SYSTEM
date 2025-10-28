@@ -1,0 +1,181 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Setup Node.js
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: |
+          backend/package-lock.json
+          frontend/OSGB.Frontend/package-lock.json
+    
+    # Backend security scan
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Run backend security audit
+      run: |
+        cd backend
+        npm audit --audit-level=moderate
+    
+    # Frontend security scan
+    - name: Install frontend dependencies
+      run: |
+        cd frontend/OSGB.Frontend
+        npm ci
+    
+    - name: Run frontend security audit
+      run: |
+        cd frontend/OSGB.Frontend
+        npm audit --audit-level=moderate
+
+  infrastructure-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Validate Kubernetes manifests
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Validate Kubernetes manifests
+      run: |
+        kubectl apply --dry-run=client -f k8s/namespace.yaml
+        kubectl apply --dry-run=client -f k8s/mysql-deployment.yaml
+        kubectl apply --dry-run=client -f k8s/backend-deployment.yaml
+        kubectl apply --dry-run=client -f k8s/frontend-deployment.yaml
+    
+    # Validate Helm chart
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
+    
+    - name: Validate Helm chart
+      run: |
+        helm lint helm/osgb
+
+  build-and-test:
+    needs: [security-scan, infrastructure-validation]
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Setup Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: |
+          backend/package-lock.json
+          frontend/OSGB.Frontend/package-lock.json
+    
+    # Backend setup and test
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test
+      env:
+        CI: true
+    
+    # Frontend setup and test
+    - name: Install frontend dependencies
+      run: |
+        cd frontend/OSGB.Frontend
+        npm ci
+    
+    - name: Run frontend tests
+      run: |
+        cd frontend/OSGB.Frontend
+        npm test
+      env:
+        CI: true
+    
+    # Build Docker images
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push backend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: ${{ github.ref == 'refs/heads/main' }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/osgb-backend:latest
+    
+    - name: Build and push frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend/OSGB.Frontend
+        file: ./frontend/OSGB.Frontend/Dockerfile
+        push: ${{ github.ref == 'refs/heads/main' }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/osgb-frontend:latest
+
+  deploy-to-kubernetes:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name osgb-cluster
+    
+    - name: Deploy to Kubernetes using Helm
+      run: |
+        helm upgrade --install osgb helm/osgb --namespace osgb-system --create-namespace

@@ -1,0 +1,96 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { getAllExperts, getAllDoctors, getAllDsps, getAllWorkplaces } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import './Dashboard.css';
+
+const Dashboard = () => {
+  const [expertCount, setExpertCount] = useState(0);
+  const [doctorCount, setDoctorCount] = useState(0);
+  const [dspCount, setDspCount] = useState(0);
+  const [workplaceCount, setWorkplaceCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+      setLoading(true);
+      const [experts, doctors, dsps, workplaces] = await Promise.all([
+        getAllExperts(),
+        getAllDoctors(),
+        getAllDsps(),
+        getAllWorkplaces()
+      ]);
+      
+      setExpertCount(experts.length);
+      setDoctorCount(doctors.length);
+      setDspCount(dsps.length);
+      setWorkplaceCount(workplaces.length);
+      setError('');
+    } catch (err: any) {
+      setError('Dashboard verileri alınamadı: ' + err.message);
+      console.error('Dashboard hatası:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="dashboard">Yükleniyor...</div>;
+  }
+
+  return (
+    <div className="dashboard">
+      <h1>Kontrol Paneli</h1>
+      
+      {user && (
+        <div className="welcome-message">
+          <h2>Hoş geldiniz, {user.fullName}!</h2>
+          {user.organizationId && (
+            <p>Organizasyon ID: {user.organizationId}</p>
+          )}
+        </div>
+      )}
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <h3>Uzmanlar</h3>
+          <p className="stat-number">{expertCount}</p>
+          <Link to="/experts" className="stat-link">Uzmanları Görüntüle</Link>
+        </div>
+        
+        <div className="stat-card">
+          <h3>Hekimler</h3>
+          <p className="stat-number">{doctorCount}</p>
+          <Link to="/doctors" className="stat-link">Hekimleri Görüntüle</Link>
+        </div>
+        
+        <div className="stat-card">
+          <h3>DSP'ler</h3>
+          <p className="stat-number">{dspCount}</p>
+          <Link to="/dsps" className="stat-link">DSP'leri Görüntüle</Link>
+        </div>
+        
+        <div className="stat-card">
+          <h3>İş Yerleri</h3>
+          <p className="stat-number">{workplaceCount}</p>
+          <Link to="/workplaces" className="stat-link">İş Yerlerini Görüntüle</Link>
+        </div>
+      </div>
+      
+      <div className="dashboard-actions">
+        <Link to="/visits" className="action-button">Ziyaretleri Yönet</Link>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;

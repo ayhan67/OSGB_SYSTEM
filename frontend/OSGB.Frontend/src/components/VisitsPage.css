@@ -1,0 +1,442 @@
+.visits-page-container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 90px);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  color: #eb0d0d;
+  font-size: 32px;
+  margin: 0;
+}
+
+/* Expert list styles */
+.expert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: transparent;
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 1px solid #ddd;
+}
+
+.expert-header-item {
+  flex: 1;
+  text-align: left;
+}
+
+.expert-header-item.class-shifted {
+  text-align: left;
+  padding-left: 75px;
+}
+
+.expert-header-item.minutes-shifted {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.expert-header-item.minutes-vertical {
+  text-align: left;
+  padding-left: 7px;
+}
+
+.expert-header-item.assigned-vertical {
+  text-align: center;
+  margin-left: -20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.expert-minutes-assigned {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 4px;
+}
+
+.expert-minutes, .expert-assigned {
+  flex: 1;
+  text-align: center;
+}
+
+.expert-contact, .expert-class, .expert-remaining {
+  flex: 1;
+  text-align: center;
+}
+
+.expert-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  border-top: none;
+  transition: background-color 0.2s ease;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.expert-row:hover {
+  background-color: #e0e0e0;
+}
+
+.expert-row:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.expert-info {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.expert-name {
+  flex: 1;
+  text-align: left;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-contact {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-class {
+  flex: 0.5;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-class.a {
+  background-color: #ffcdd2;
+  color: #000;
+}
+
+.expert-class.b {
+  background-color: #bbdefb;
+  color: #000;
+}
+
+.expert-class.c {
+  background-color: #c8e6c9;
+  color: #000;
+}
+
+.expert-minutes {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-assigned {
+  flex: 0.7;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.expert-remaining {
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  padding: 4px 0;
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.no-workplaces {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.statistics-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.statistics-header {
+  color: #eb0d0d;
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid #4ada6e;
+  padding-bottom: 10px;
+}
+
+.statistics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stat-item {
+  display: flex;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.stat-value {
+  font-size: 15px;
+  font-weight: bold;
+  color: #0078d7;
+  text-align: right;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+  border-color: #aaa;
+}
+
+.btn:active {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0078d7;
+  color: white;
+  border-color: #005a9e;
+}
+
+.btn-primary:hover {
+  background: #0066b4;
+  border-color: #004578;
+}
+
+.btn-primary:active {
+  background: #005a9e;
+  border-color: #003a66;
+}
+
+/* Expert Modal Styles */
+.expert-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.expert-modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 50%;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.expert-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+}
+
+.expert-name-display {
+  color: #eb0d0d;
+  font-size: 14pt;
+  font-weight: bold;
+  margin: 0;
+}
+
+.expert-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.expert-modal-close:hover {
+  background-color: #eee;
+  color: #333;
+}
+
+.expert-modal-body {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.year-calendar-section {
+  margin-top: 20px;
+}
+
+.year-calendar-section h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.workplaces-calendar {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.workplace-calendar {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.workplace-name {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.months-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.month-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #ddd;
+}
+
+.month-box.visited {
+  background-color: #4caf50;
+  border-color: #388e3c;
+  color: white;
+}
+
+.month-box.not-visited {
+  background-color: #f44336;
+  border-color: #d32f2f;
+  color: white;
+}
+
+.month-box:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.month-label {
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .months-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .month-box {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .months-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .month-box {
+    width: 30px;
+    height: 30px;
+  }
+}
+

@@ -1,0 +1,287 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 50%;
+  height: 80vh;
+  max-width: 1200px;
+  max-height: 800px;
+  min-width: 400px;
+  min-height: 300px;
+  overflow-y: auto;
+  position: relative;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: none;
+}
+
+.window {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.window-header {
+  background: linear-gradient(to right, #0078d7, #005a9e);
+  color: white;
+  padding: 10px 15px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  user-select: none;
+  font-size: 14px;
+  margin: 0;
+}
+
+.window-content {
+  flex: 1;
+  overflow: auto;
+  padding: 10;
+  margin: 0;
+}
+
+.workplaces-table {
+  width: 100%;
+  border-collapse: collapse;
+  padding: 0;
+  margin: 0;
+}
+
+.table-header {
+  display: flex;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  border-bottom: 1px solid #dee2e6;
+  padding: 14px 12px;
+  font-size: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+/* Add 5px gap after first header cell and shift others 10px left */
+.table-header .table-cell:first-child {
+  margin-right: 5px;
+}
+
+.table-header .table-cell:nth-child(n+2) {
+  margin-left: -30px;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #dee2e6;
+  padding: 2px 12px;
+  transition: background-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  height: 24px;
+  align-items: center;
+}
+
+/* Add 5px gap after first data cell and shift others 10px left */
+.table-row .table-cell:first-child {
+  margin-right: 5px;
+}
+
+.table-row .table-cell:nth-child(n+2) {
+  margin-left: -20px;
+}
+
+.table-row:hover {
+  background-color: #e8f5e9;
+}
+
+.table-cell {
+  padding: 1px 4px;
+  text-align: left;
+  font-size: 12px; /* Increased font size for better readability */
+  line-height: 1.1;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 18px; /* Match the button height */
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center; /* Center content vertically */
+}
+
+.table-cell:first-child {
+  font-weight: 500;
+  flex: 0;
+}
+
+.status-badge {
+  padding: 2px 6px; /* Reduced padding to fit better */
+  border-radius: 2px;
+  font-size: 10px; /* Reduced font size to fit better */
+  font-weight: 500;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px; /* Set fixed height to fit within row */
+  border: none;
+  cursor: pointer;
+  min-width: 90px; /* Reduced minimum width */
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.status-atama {
+  background-color: #f44336; /* Red color for "Atama yapılacak" */
+  color: white;
+}
+
+.status-atama:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
+
+.status-bekliyor {
+  background-color: #ff9800; /* Orange color for "Onay bekleniyor" */
+  color: white;
+}
+
+.status-bekliyor:hover {
+  background-color: #f57c00; /* Darker orange on hover */
+}
+
+.status-onaylandi {
+  background-color: #4caf50; /* Green color for "Onaylandı" */
+  color: white;
+}
+
+.status-onaylandi:hover {
+  background-color: #388e3c; /* Darker green on hover */
+}
+
+.btn {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f8f7f7;
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  height: 20px;
+}
+
+.btn:hover {
+  background: #e0e0e0;
+  border-color: #aaa8a8;
+}
+
+.btn:active {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0078d7;
+  color: white;
+  border-color: #005a9e;
+}
+
+.btn-primary:hover {
+  background: #0066b4;
+  border-color: #004578;
+}
+
+.btn-primary:active {
+  background: #005a9e;
+  border-color: #003a66;
+}
+
+.btn-close {
+  background: #14af0f;
+  color: black;
+  border-color: #080808;
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 3px;
+  min-width: 40px;
+  text-align: center;
+  height: 20px;
+}
+
+.btn-close:hover {
+  background: #5a6268;
+  border-color: #484e53;
+  color: black;
+}
+
+.btn-close:focus {
+  outline: 2px solid #8a8d93;
+  outline-offset: 2px;
+}
+
+.btn-danger {
+  background: #d32f2f;
+  color: white;
+  border-color: #b71c1c;
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+  border-color: #8b0000;
+}
+
+.btn-danger:active {
+  background: #8b0000;
+  border-color: #600000;
+}
+
+.modal-actions {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  background: white;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+/* Risk level text colors */
+.risk-level-low {
+  color: green;
+  font-weight: bold;
+}
+
+.risk-level-dangerous {
+  color: orange;
+  font-weight: bold;
+}
+
+.risk-level-very-dangerous {
+  color: red;
+  font-weight: bold;
+}

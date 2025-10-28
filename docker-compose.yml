@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Database service
+  database:
+    image: mysql:8.0
+    container_name: osgb_database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: osgb_db
+      MYSQL_USER: osgb_user
+      MYSQL_PASSWORD: osgb_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - osgb_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Backend service
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: osgb_backend
+    restart: always
+    ports:
+      - "5003:5002"
+    environment:
+      - DB_HOST=database
+      - DB_USER=osgb_user
+      - DB_PASSWORD=osgb_password
+      - DB_NAME=osgb_db
+      - DB_PORT=3306
+      - JWT_SECRET=super_secure_random_key_!@#123
+      - PORT=5002
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - osgb_network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend/OSGB.Frontend
+      dockerfile: Dockerfile
+    container_name: osgb_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - osgb_network
+    volumes:
+      - ./frontend/OSGB.Frontend:/app
+      - /app/node_modules
+
+networks:
+  osgb_network:
+    driver: bridge
+
+volumes:
+  db_data:
