@@ -904,7 +904,7 @@ div.expert-card-page div.registered-experts-container div div.expert-phone-displ
 /* Add styles for the experts list section */
 .experts-list-section {
   position: absolute;
-  top: 19%;
+  top: 20%;
   left: 78%;
   transform: translate(-50%, -50%);
   width: 50%;

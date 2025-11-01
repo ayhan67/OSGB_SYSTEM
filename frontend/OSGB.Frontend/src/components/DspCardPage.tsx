@@ -328,6 +328,9 @@ const DspCardPage = () => {
       closeModal();
       fetchDsps(); // Refresh the DSPs list
       
+      // Emit an event to notify other components that DSP data has changed
+      window.dispatchEvent(new CustomEvent('dspUpdated', { detail: { dspId: selectedDsp.id } }));
+      
       clearNotifications();
     } catch (err: any) {
       console.error('DSP güncellenirken hata oluştu:', err);
@@ -375,10 +378,12 @@ const DspCardPage = () => {
   // Function to open modal in edit mode
   const openEditDsp = (dsp: DspData) => {
     setSelectedDsp(dsp);
+    // Populate edit form with existing DSP data
+    // Phone number is retained from existing data and not automatically cleared
     setEditFormData({
       firstName: dsp.firstName,
       lastName: dsp.lastName,
-      phone: dsp.phone,
+      phone: dsp.phone,  // Retain existing phone number
       assignedMinutes: dsp.assignedMinutes || 11900
     });
     setIsEditMode(true);

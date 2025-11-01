@@ -5,6 +5,46 @@ const Dsp = require('../models/DSP');
 const Organization = require('../models/Organization');
 const { clearCache } = require('../middleware/cacheMiddleware');
 
+// Helper function to check if expert class is compatible with workplace risk level
+const isExpertClassCompatible = (expertiseClass, riskLevel) => {
+  switch (expertiseClass) {
+    case 'A':
+      // A class experts can be assigned to all risk levels
+      return true;
+    case 'B':
+      // B class experts can be assigned to dangerous and low risk workplaces
+      return riskLevel === 'dangerous' || riskLevel === 'low';
+    case 'C':
+      // C class experts can only be assigned to low risk workplaces
+      return riskLevel === 'low';
+    default:
+      return false;
+  }
+};
+
+// Helper function to check if expert can be downgraded based on existing assignments
+const canDowngradeExpert = async (expertId, newExpertiseClass, organizationId) => {
+  // If upgrading or keeping the same class, no restrictions
+  if (newExpertiseClass === 'A') return true;
+  
+  // Find all workplaces where this expert is assigned
+  const assignedWorkplaces = await Workplace.findAll({
+    where: { 
+      assignedExpertId: expertId,
+      organizationId
+    }
+  });
+  
+  // Check each workplace to see if the new class would be compatible
+  for (const workplace of assignedWorkplaces) {
+    if (!isExpertClassCompatible(newExpertiseClass, workplace.riskLevel)) {
+      return false; // Cannot downgrade if already assigned to incompatible workplace
+    }
+  }
+  
+  return true;
+};
+
 // Get all workplaces for the organization
 exports.getAllWorkplaces = async (req, res) => {
   try {
@@ -16,16 +56,11 @@ exports.getAllWorkplaces = async (req, res) => {
       organizationId = parseInt(organizationId, 10);
     }
     
-    // For admin users, show all workplaces
-    let whereClause = {};
-    if (req.user && req.user.role !== 'admin') {
-      // Non-admin users can only see their organization's workplaces
-      if (!organizationId) {
-        return res.status(400).json({ message: 'Organization ID is required' });
-      }
-      whereClause = { organizationId };
+    // All users can only see their organization's workplaces
+    if (!organizationId) {
+      return res.status(400).json({ message: 'Organization ID is required' });
     }
-    // Admin users will see all workplaces (no organization filter)
+    const whereClause = { organizationId };
 
     // Optimize query with proper indexing and eager loading
     const workplaces = await Workplace.findAll({
@@ -35,25 +70,25 @@ exports.getAllWorkplaces = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false // Use LEFT JOIN instead of INNER JOIN
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false // Use LEFT JOIN instead of INNER JOIN
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false // Use LEFT JOIN instead of INNER JOIN
         },
         {
           model: Expert,
           as: 'TrackingExpert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false // Use LEFT JOIN instead of INNER JOIN
         }
       ]
@@ -81,14 +116,11 @@ exports.getWorkplaceById = async (req, res) => {
     // Build where clause
     let whereClause = { id };
     
-    // For non-admin users, filter by organization
-    if (req.user && req.user.role !== 'admin') {
-      if (!organizationId) {
-        return res.status(400).json({ message: 'Organization ID is required' });
-      }
-      whereClause.organizationId = organizationId;
+    // All users can only access their organization's workplaces
+    if (!organizationId) {
+      return res.status(400).json({ message: 'Organization ID is required' });
     }
-    // Admin users can access any workplace
+    whereClause.organizationId = organizationId;
 
     const workplace = await Workplace.findOne({
       where: whereClause,
@@ -96,25 +128,25 @@ exports.getWorkplaceById = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Expert,
           as: 'TrackingExpert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ]
@@ -197,7 +229,7 @@ exports.createWorkplace = async (req, res) => {
       });
     }
     
-    // Validate assigned IDs belong to the same organization
+    // Validate assigned IDs belong to the same organization and have enough minutes
     if (req.body.assignedExpertId) {
       const expert = await Expert.findOne({
         where: { 
@@ -208,6 +240,30 @@ exports.createWorkplace = async (req, res) => {
       if (!expert) {
         console.log('ERROR: Assigned expert not found in organization');
         return res.status(400).json({ message: 'Assigned expert not found in your organization' });
+      }
+      
+      // Check if expert has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || 0;
+      if (!expert.hasEnoughMinutes(req.body.riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen uzmanın bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
+      }
+      
+      // Check if expert class is compatible with workplace risk level
+      if (!isExpertClassCompatible(expert.expertiseClass, req.body.riskLevel)) {
+        let errorMessage = '';
+        switch (expert.expertiseClass) {
+          case 'B':
+            errorMessage = 'B sınıfı uzmanlar sadece az tehlikeli ve tehlikeli iş yerlerine atanabilir';
+            break;
+          case 'C':
+            errorMessage = 'C sınıfı uzmanlar sadece az tehlikeli iş yerlerine atanabilir';
+            break;
+          default:
+            errorMessage = 'Uzman sınıfı ile iş yeri tehlike seviyesi uyumsuz';
+        }
+        return res.status(400).json({ message: errorMessage });
       }
     }
     
@@ -222,6 +278,14 @@ exports.createWorkplace = async (req, res) => {
         console.log('ERROR: Assigned doctor not found in organization');
         return res.status(400).json({ message: 'Assigned doctor not found in your organization' });
       }
+      
+      // Check if doctor has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || 0;
+      if (!doctor.hasEnoughMinutes(req.body.riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen hekimin bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
+      }
     }
     
     if (req.body.assignedDspId) {
@@ -234,6 +298,14 @@ exports.createWorkplace = async (req, res) => {
       if (!dsp) {
         console.log('ERROR: Assigned DSP not found in organization');
         return res.status(400).json({ message: 'Assigned DSP not found in your organization' });
+      }
+      
+      // Check if DSP has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || 0;
+      if (!dsp.hasEnoughMinutes(req.body.riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen DSP\'nin bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
       }
     }
     
@@ -264,25 +336,25 @@ exports.createWorkplace = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Expert,
           as: 'TrackingExpert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ]
@@ -355,7 +427,7 @@ exports.updateWorkplace = async (req, res) => {
     // Store the previous approval status to compare later
     const previousApprovalStatus = workplace.approvalStatus;
     
-    // Validate assigned IDs belong to the same organization
+    // Validate assigned IDs belong to the same organization and have enough minutes
     if (req.body.assignedExpertId) {
       const expert = await Expert.findOne({
         where: { 
@@ -366,6 +438,31 @@ exports.updateWorkplace = async (req, res) => {
       if (!expert) {
         console.log('ERROR: Assigned expert not found in organization');
         return res.status(400).json({ message: 'Assigned expert not found in your organization' });
+      }
+      
+      // Check if expert has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || parseInt(workplace.employeeCount) || 0;
+      const riskLevel = req.body.riskLevel || workplace.riskLevel;
+      if (!expert.hasEnoughMinutes(riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen uzmanın bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
+      }
+      
+      // Check if expert class is compatible with workplace risk level
+      if (!isExpertClassCompatible(expert.expertiseClass, riskLevel)) {
+        let errorMessage = '';
+        switch (expert.expertiseClass) {
+          case 'B':
+            errorMessage = 'B sınıfı uzmanlar sadece az tehlikeli ve tehlikeli iş yerlerine atanabilir';
+            break;
+          case 'C':
+            errorMessage = 'C sınıfı uzmanlar sadece az tehlikeli iş yerlerine atanabilir';
+            break;
+          default:
+            errorMessage = 'Uzman sınıfı ile iş yeri tehlike seviyesi uyumsuz';
+        }
+        return res.status(400).json({ message: errorMessage });
       }
     }
     
@@ -380,6 +477,15 @@ exports.updateWorkplace = async (req, res) => {
         console.log('ERROR: Assigned doctor not found in organization');
         return res.status(400).json({ message: 'Assigned doctor not found in your organization' });
       }
+      
+      // Check if doctor has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || parseInt(workplace.employeeCount) || 0;
+      const riskLevel = req.body.riskLevel || workplace.riskLevel;
+      if (!doctor.hasEnoughMinutes(riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen hekimin bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
+      }
     }
     
     if (req.body.assignedDspId) {
@@ -392,6 +498,15 @@ exports.updateWorkplace = async (req, res) => {
       if (!dsp) {
         console.log('ERROR: Assigned DSP not found in organization');
         return res.status(400).json({ message: 'Assigned DSP not found in your organization' });
+      }
+      
+      // Check if DSP has enough minutes
+      const employeeCount = parseInt(req.body.employeeCount) || parseInt(workplace.employeeCount) || 0;
+      const riskLevel = req.body.riskLevel || workplace.riskLevel;
+      if (!dsp.hasEnoughMinutes(riskLevel, employeeCount)) {
+        return res.status(400).json({ 
+          message: 'Seçilen DSP\'nin bu iş yeri için yeterli dakikası bulunmamaktadır' 
+        });
       }
     }
     
@@ -511,19 +626,19 @@ exports.getWorkplacesByApprovalStatus = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ],
@@ -568,19 +683,19 @@ exports.getWorkplacesByExpert = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ],
@@ -625,19 +740,19 @@ exports.getWorkplacesByDoctor = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ],
@@ -682,19 +797,19 @@ exports.getWorkplacesByDsp = async (req, res) => {
         {
           model: Expert,
           as: 'Expert',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Doctor,
           as: 'Doctor',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         },
         {
           model: Dsp,
           as: 'Dsp',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'firstName', 'lastName', 'assignedMinutes'],
           required: false
         }
       ],

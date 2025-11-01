@@ -28,6 +28,10 @@ const Visit = sequelize.define('Visit', {
     type: DataTypes.TIME,
     allowNull: false
   },
+  visitMonth: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   notes: {
     type: DataTypes.TEXT,
     allowNull: true

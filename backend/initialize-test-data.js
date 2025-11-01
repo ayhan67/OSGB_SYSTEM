@@ -1,8 +1,12 @@
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcryptjs');
+const dotenv = require('dotenv');
 const Organization = require('./models/Organization');
 const User = require('./models/User');
 const sequelize = require('./config/database');
+
+// Load environment variables
+dotenv.config();
 
 async function initializeTestData() {
   try {
@@ -44,10 +48,7 @@ async function initializeTestData() {
     console.log('- OSGB 1:', org1[0].toJSON());
     console.log('- OSGB 2:', org2[0].toJSON());
     
-    // Create test users
-    console.log('Creating test users...');
-    
-    // Create admin user for OSGB 1
+    // Create test admin user
     const adminUser = await User.findOne({ where: { username: 'admin' } });
     if (!adminUser) {
       const salt = await bcrypt.genSalt(12);
@@ -60,11 +61,11 @@ async function initializeTestData() {
         role: 'admin',
         organizationId: org1[0].id
       });
-      console.log('Admin user created for OSGB 1');
+      console.log('Test admin user created');
     } else {
-      // Update existing admin user to ensure it has organizationId
+      // Update existing user to ensure it has organizationId
       await adminUser.update({ organizationId: org1[0].id });
-      console.log('Admin user updated with organization ID');
+      console.log('Test admin user updated with organization ID');
     }
     
     // Create test user for OSGB 1

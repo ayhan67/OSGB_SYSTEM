@@ -32,13 +32,17 @@ const Dashboard = () => {
     taxOffice: '',
     taxNumber: '',
     price: '',
+    kdvType: 'excluded',
     riskLevel: 'low',
     employeeCount: '',
     assignedExpertId: '',
     assignedDoctorId: '',
     assignedDspId: '',
     trackingExpertId: '',
-    registrationDate: new Date().toISOString().split('T')[0]
+    trackingDoctorId: '', // Add this line
+    notes: '', // Add this line
+    registrationDate: new Date().toISOString().split('T')[0],
+    kimden: '' // Add this new field
   });
   
   // Form error state
@@ -49,6 +53,33 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchAllData();
+    
+    // Add event listeners for personnel updates
+    const handleExpertUpdate = () => {
+      console.log('Dashboard: Received expertUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    const handleDoctorUpdate = () => {
+      console.log('Dashboard: Received doctorUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    const handleDspUpdate = () => {
+      console.log('Dashboard: Received dspUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    window.addEventListener('expertUpdated', handleExpertUpdate);
+    window.addEventListener('doctorUpdated', handleDoctorUpdate);
+    window.addEventListener('dspUpdated', handleDspUpdate);
+    
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('expertUpdated', handleExpertUpdate);
+      window.removeEventListener('doctorUpdated', handleDoctorUpdate);
+      window.removeEventListener('dspUpdated', handleDspUpdate);
+    };
   }, []);
 
   const fetchAllData = async () => {
@@ -60,6 +91,20 @@ const Dashboard = () => {
         getAllDsps(),
         getAllWorkplaces()
       ]);
+      
+      // Debug logging to check if usedMinutes is present
+      console.log('Experts data:', expertsData);
+      console.log('Doctors data:', doctorsData);
+      console.log('DSPs data:', dspsData);
+      
+      // Additional debug logging for REMZİYE ÇAĞCI specifically
+      const remziye = expertsData.find((expert: any) => expert.firstName === 'REMZİYE' && expert.lastName === 'ÇAĞCI');
+      if (remziye) {
+        console.log('REMZİYE ÇAĞCI data:', remziye);
+        console.log('REMZİYE ÇAĞCI assigned minutes:', remziye.assignedMinutes);
+        console.log('REMZİYE ÇAĞCI used minutes:', remziye.usedMinutes);
+        console.log('REMZİYE ÇAĞCI calculated remaining:', remziye.assignedMinutes - (remziye.usedMinutes || 0));
+      }
       
       setExperts(expertsData);
       setDoctors(doctorsData);
@@ -284,10 +329,92 @@ const Dashboard = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // Check if selected personnel have enough minutes
+  const checkPersonnelMinutes = async () => {
+    const errors: Record<string, string> = {};
+    
+    // Check expert
+    if (formData.assignedExpertId) {
+      const selectedExpert = experts.find(expert => expert.id === parseInt(formData.assignedExpertId));
+      if (selectedExpert) {
+        const employeeCount = parseInt(formData.employeeCount) || 0;
+        const requiredMinutes = calculateRequiredMinutes('expert', formData.riskLevel, employeeCount);
+        
+        if (selectedExpert.assignedMinutes < requiredMinutes) {
+          errors.assignedExpertId = `Seçilen uzmanın bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedExpert.assignedMinutes} dakika`;
+        }
+      }
+    }
+    
+    // Check doctor
+    if (formData.assignedDoctorId) {
+      const selectedDoctor = doctors.find(doctor => doctor.id === parseInt(formData.assignedDoctorId));
+      if (selectedDoctor) {
+        const employeeCount = parseInt(formData.employeeCount) || 0;
+        const requiredMinutes = calculateRequiredMinutes('doctor', formData.riskLevel, employeeCount);
+        
+        if (selectedDoctor.assignedMinutes < requiredMinutes) {
+          errors.assignedDoctorId = `Seçilen hekimin bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedDoctor.assignedMinutes} dakika`;
+        }
+      }
+    }
+    
+    // Check DSP
+    if (formData.assignedDspId && isDspEnabled) {
+      const selectedDsp = dsps.find(dsp => dsp.id === parseInt(formData.assignedDspId));
+      if (selectedDsp) {
+        const employeeCount = parseInt(formData.employeeCount) || 0;
+        const requiredMinutes = calculateRequiredMinutes('dsp', formData.riskLevel, employeeCount);
+        
+        if (selectedDsp.assignedMinutes < requiredMinutes) {
+          errors.assignedDspId = `Seçilen DSP'nin bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedDsp.assignedMinutes} dakika`;
+        }
+      }
+    }
+    
+    return errors;
+  };
+
+  // Calculate required minutes based on personnel type, risk level and employee count
+  const calculateRequiredMinutes = (personnelType: string, riskLevel: string, employeeCount: number): number => {
+    switch (personnelType) {
+      case 'expert':
+        switch (riskLevel) {
+          case 'low': return employeeCount * 10;
+          case 'dangerous': return employeeCount * 20;
+          case 'veryDangerous': return employeeCount * 40;
+          default: return 0;
+        }
+      case 'doctor':
+        switch (riskLevel) {
+          case 'low': return employeeCount * 5;
+          case 'dangerous': return employeeCount * 10;
+          case 'veryDangerous': return employeeCount * 15;
+          default: return 0;
+        }
+      case 'dsp':
+        // DSP only works with very dangerous workplaces with more than 10 employees
+        if (riskLevel === 'veryDangerous' && employeeCount > 10) {
+          return employeeCount * 5;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate basic form fields
     if (!validateForm()) {
+      return;
+    }
+    
+    // Check if selected personnel have enough minutes
+    const minuteErrors = await checkPersonnelMinutes();
+    if (Object.keys(minuteErrors).length > 0) {
+      setFormErrors(prevErrors => ({ ...prevErrors, ...minuteErrors }));
       return;
     }
     
@@ -301,15 +428,19 @@ const Dashboard = () => {
         taxOffice: formData.taxOffice,
         taxNumber: formData.taxNumber,
         price: parsePrice(formData.price), // Parse formatted price back to number
+        kdvType: formData.kdvType,
         riskLevel: formData.riskLevel,
         employeeCount: parseInt(formData.employeeCount),
         assignedExpertId: formData.assignedExpertId || null,
         assignedDoctorId: formData.assignedDoctorId || null,
         assignedDspId: formData.assignedDspId || null,
         trackingExpertId: formData.trackingExpertId || null,
+        trackingDoctorId: formData.trackingDoctorId || null, // Add this line
+        notes: formData.notes || null, // Add this line
         registrationDate: formData.registrationDate,
         source: 'Yeni Kayıt', // Set a default source
-        approvalStatus: 'atama' // Set default approval status since we removed the form field
+        approvalStatus: 'atama', // Set default approval status since we removed the form field
+        kimden: formData.kimden || null // Add the new field
       };
       
       console.log('=== Form Submission Debug Info ===');
@@ -328,13 +459,17 @@ const Dashboard = () => {
         taxOffice: '',
         taxNumber: '',
         price: '',
+        kdvType: 'excluded',
         riskLevel: 'low',
         employeeCount: '',
         assignedExpertId: '',
         assignedDoctorId: '',
         assignedDspId: '',
         trackingExpertId: '',
-        registrationDate: new Date().toISOString().split('T')[0]
+        trackingDoctorId: '', // Add this line
+        notes: '', // Add this line
+        registrationDate: new Date().toISOString().split('T')[0],
+        kimden: '' // Add this line
         // Removed approvalStatus from reset since it's no longer in the form
       });
       
@@ -360,14 +495,17 @@ const Dashboard = () => {
       taxOffice: '',
       taxNumber: '',
       price: '',
+      kdvType: 'excluded',
       riskLevel: 'low',
       employeeCount: '',
       assignedExpertId: '',
       assignedDoctorId: '',
       assignedDspId: '',
       trackingExpertId: '',
-      registrationDate: new Date().toISOString().split('T')[0]
-      // Removed approvalStatus since it's no longer in the form
+      trackingDoctorId: '', // Add this line
+      notes: '', // Add this line
+      registrationDate: new Date().toISOString().split('T')[0],
+      kimden: '' // Add this line
     });
     
     // Clear any existing errors
@@ -531,8 +669,66 @@ const Dashboard = () => {
 
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     try {
       if (selectedWorkplace && selectedWorkplace.id) {
+        // Check if selected personnel have enough minutes
+        const errors: Record<string, string> = {};
+        
+        // Check expert
+        if (selectedWorkplace.assignedExpertId) {
+          const selectedExpert = experts.find(expert => expert.id === parseInt(selectedWorkplace.assignedExpertId));
+          if (selectedExpert) {
+            const employeeCount = parseInt(selectedWorkplace.employeeCount) || 0;
+            const requiredMinutes = calculateRequiredMinutes('expert', selectedWorkplace.riskLevel, employeeCount);
+            
+            if (selectedExpert.assignedMinutes < requiredMinutes) {
+              setError(`Seçilen uzmanın bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedExpert.assignedMinutes} dakika`);
+              // Clear error message after 3 seconds
+              setTimeout(() => {
+                setError('');
+              }, 3000);
+              return;
+            }
+          }
+        }
+        
+        // Check doctor
+        if (selectedWorkplace.assignedDoctorId) {
+          const selectedDoctor = doctors.find(doctor => doctor.id === parseInt(selectedWorkplace.assignedDoctorId));
+          if (selectedDoctor) {
+            const employeeCount = parseInt(selectedWorkplace.employeeCount) || 0;
+            const requiredMinutes = calculateRequiredMinutes('doctor', selectedWorkplace.riskLevel, employeeCount);
+            
+            if (selectedDoctor.assignedMinutes < requiredMinutes) {
+              setError(`Seçilen hekimin bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedDoctor.assignedMinutes} dakika`);
+              // Clear error message after 3 seconds
+              setTimeout(() => {
+                setError('');
+              }, 3000);
+              return;
+            }
+          }
+        }
+        
+        // Check DSP
+        if (selectedWorkplace.assignedDspId) {
+          const selectedDsp = dsps.find(dsp => dsp.id === parseInt(selectedWorkplace.assignedDspId));
+          if (selectedDsp) {
+            const employeeCount = parseInt(selectedWorkplace.employeeCount) || 0;
+            const requiredMinutes = calculateRequiredMinutes('dsp', selectedWorkplace.riskLevel, employeeCount);
+            
+            if (selectedDsp.assignedMinutes < requiredMinutes) {
+              setError(`Seçilen DSP'nin bu iş yeri için yeterli dakikası bulunmamaktadır. Gerekli: ${requiredMinutes} dakika, Mevcut: ${selectedDsp.assignedMinutes} dakika`);
+              // Clear error message after 3 seconds
+              setTimeout(() => {
+                setError('');
+              }, 3000);
+              return;
+            }
+          }
+        }
+        
         // Create a clean object with only the fields we want to update
         const workplaceData = {
           name: selectedWorkplace.name,
@@ -713,13 +909,78 @@ const Dashboard = () => {
     }
   };
 
+  // Add the toggle function for KDV type
+  const toggleKdvType = () => {
+    setFormData(prev => ({
+      ...prev,
+      kdvType: prev.kdvType === 'excluded' ? 'included' : 'excluded'
+    }));
+  };
+  
+  // Function to handle KDV type selection from dropdown
+  const handleKdvTypeSelect = (type: string) => {
+    setFormData(prev => ({
+      ...prev,
+      kdvType: type
+    }));
+    setShowKdvDropdown(false);
+  };
+  
+  // Function to toggle dropdown visibility
+  const toggleKdvDropdown = () => {
+    setShowKdvDropdown(!showKdvDropdown);
+  };
+  
+  // Add state variable for KDV dropdown
+  const [showKdvDropdown, setShowKdvDropdown] = useState(false);
+
+  // Add useEffect to handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showKdvDropdown) {
+        // Check if click is outside the dropdown
+        const dropdown = document.querySelector('.kdv-dropdown');
+        const button = document.querySelector('.kdv-toggle-button');
+        
+        if (dropdown && !dropdown.contains(event.target as Node) && 
+            button && !button.contains(event.target as Node)) {
+          setShowKdvDropdown(false);
+        }
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showKdvDropdown]);
+
   if (loading) {
     return <div className="dashboard">Yükleniyor...</div>;
   }
 
   return (
     <div className="dashboard-container">
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message" style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999,
+          padding: '20px',
+          backgroundColor: '#f44336',
+          color: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+          textAlign: 'center',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          minWidth: '300px'
+        }}>
+          {error}
+        </div>
+      )}
       {success && (
         <div className="success-message" style={{
           position: 'fixed',
@@ -731,8 +992,11 @@ const Dashboard = () => {
           backgroundColor: '#4CAF50',
           color: 'white',
           borderRadius: '4px',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-          textAlign: 'center'
+          boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+          textAlign: 'center',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          minWidth: '300px'
         }}>
           {success}
         </div>
@@ -887,7 +1151,7 @@ const Dashboard = () => {
               </div>
               
               <div className="form-row sgk-row">
-                <div className="form-group">
+                <div className="form-group" style={{ flex: 1 }}>
                   <label htmlFor="taxOffice">Vergi Dairesi:</label>
                   <input
                     type="text"
@@ -899,7 +1163,7 @@ const Dashboard = () => {
                   />
                   {formErrors.taxOffice && <span className="error-text">{formErrors.taxOffice}</span>}
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ flex: 1 }}>
                   <label htmlFor="taxNumber">Vergi No:</label>
                   <input
                     type="text"
@@ -911,16 +1175,43 @@ const Dashboard = () => {
                   />
                   {formErrors.taxNumber && <span className="error-text">{formErrors.taxNumber}</span>}
                 </div>
-                <div className="form-group">
+                <div className="form-group price-container" style={{ flex: 1 }}>
                   <label htmlFor="price">Fiyat:</label>
-                  <input
-                    type="text"
-                    id="price"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    className={formErrors.price ? 'error' : ''}
-                  />
+                  <div className="price-input-container">
+                    <input
+                      type="text"
+                      id="price"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleChange}
+                      className={formErrors.price ? 'error' : ''}
+                    />
+                    <button 
+                      type="button"
+                      className={`kdv-toggle-button ${formData.kdvType || 'included'}`}
+                      onClick={toggleKdvDropdown}
+                    >
+                      {formData.kdvType === 'excluded' ? 'KDV HARİÇ' : 'KDV DAHİL'}
+                    </button>
+                    
+                    {/* KDV Dropdown */}
+                    {showKdvDropdown && (
+                      <div className="kdv-dropdown">
+                        <div 
+                          className="kdv-dropdown-option excluded"
+                          onClick={() => handleKdvTypeSelect('excluded')}
+                        >
+                          KDV HARİÇ
+                        </div>
+                        <div 
+                          className="kdv-dropdown-option included"
+                          onClick={() => handleKdvTypeSelect('included')}
+                        >
+                          KDV DAHİL
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {formErrors.price && <span className="error-text">{formErrors.price}</span>}
                 </div>
               </div>
@@ -970,8 +1261,8 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              
-              <div className="assignment-row">
+              {/* Assignment row with expert, doctor, and DSP selection */}
+              <div className="form-row assignment-row">
                 <div className="form-group">
                   <label htmlFor="assignedExpertId">Atanacak Uzman:</label>
                   <select
@@ -984,7 +1275,7 @@ const Dashboard = () => {
                     <option value="">Seçiniz</option>
                     {getFilteredExperts().map(expert => (
                       <option key={expert.id} value={expert.id}>
-                        {expert.firstName} {expert.lastName} ({expert.expertiseClass})
+                        {expert.firstName} {expert.lastName} ({expert.expertiseClass}) - {expert.assignedMinutes} dk
                       </option>
                     ))}
                   </select>
@@ -1002,11 +1293,24 @@ const Dashboard = () => {
                     <option value="">Seçiniz</option>
                     {doctors.map(doctor => (
                       <option key={doctor.id} value={doctor.id}>
-                        {doctor.firstName} {doctor.lastName}
+                        {doctor.firstName} {doctor.lastName} - {doctor.assignedMinutes} dk
                       </option>
                     ))}
                   </select>
                   {formErrors.assignedDoctorId && <span className="error-text">{formErrors.assignedDoctorId}</span>}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="kimden">Kimden:</label>
+                  <input
+                    type="text"
+                    id="kimden"
+                    name="kimden"
+                    value={formData.kimden}
+                    onChange={handleChange}
+                    className={formErrors.kimden ? 'error' : ''}
+                    placeholder="Kaynağı giriniz"
+                  />
+                  {formErrors.kimden && <span className="error-text">{formErrors.kimden}</span>}
                 </div>
                 <div className="form-group">
                   <label htmlFor="assignedDspId">Atanacak DSP:</label>
@@ -1018,19 +1322,50 @@ const Dashboard = () => {
                     disabled={!isDspEnabled}
                     className={formErrors.assignedDspId ? 'error' : ''}
                   >
-                    <option value="">DSP ataması yapılamaz</option>
-                    {isDspEnabled && dsps.map(dsp => (
-                      <option key={dsp.id} value={dsp.id}>
-                        {dsp.firstName} {dsp.lastName}
+                    <option value="">Seçiniz</option>
+                    {isDspEnabled && dsps.map(dsp => {
+                      const remainingMinutes = dsp.assignedMinutes - (dsp.usedMinutes || 0);
+                      console.log(`DSP (main form): ${dsp.firstName} ${dsp.lastName}, Assigned: ${dsp.assignedMinutes}, Used: ${dsp.usedMinutes}, Remaining: ${remainingMinutes}`);
+                      return (
+                        <option key={dsp.id} value={dsp.id}>
+                          {dsp.firstName} {dsp.lastName} - {remainingMinutes} dk
+                        </option>
+                      );
+                    })}
+                  </select>
+                  {formErrors.assignedDspId && <span className="error-text">{formErrors.assignedDspId}</span>}
+                </div>
+              </div>
+              
+              {/* New fields for tracking doctor and notes - positioned side by side and moved upward */}
+              <div className="form-row tracking-notes-row">
+                <div className="form-group">
+                  <label htmlFor="trackingDoctorId">Takip Edecek Hekim:</label>
+                  <select
+                    id="trackingDoctorId"
+                    name="trackingDoctorId"
+                    value={formData.trackingDoctorId}
+                    onChange={handleChange}
+                    className="form-select"
+                  >
+                    <option value="">Seçiniz</option>
+                    {doctors.map(doctor => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.firstName} {doctor.lastName}
                       </option>
                     ))}
                   </select>
-                  {!isDspEnabled && (
-                    <small className="info-text">
-                      DSP ataması sadece çok tehlikeli iş yerlerinde ve 10+ çalışan olduğunda yapılabilir
-                    </small>
-                  )}
-                  {formErrors.assignedDspId && <span className="error-text">{formErrors.assignedDspId}</span>}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="notes">Not:</label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    className="form-textarea"
+                    rows={3}
+                  />
                 </div>
               </div>
               
@@ -1162,6 +1497,37 @@ const Dashboard = () => {
               <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
             <div className="modal-body">
+              {error && (
+                <>
+                  <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    zIndex: 9999
+                  }} />
+                  <div style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 10000,
+                    padding: '20px',
+                    backgroundColor: '#f44336',
+                    color: 'white',
+                    borderRadius: '4px',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                    textAlign: 'center',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    minWidth: '300px'
+                  }}>
+                    {error}
+                  </div>
+                </>
+              )}
               <form onSubmit={handleModalSubmit}>
                 <div className="form-row">
                   <div className="form-col">
@@ -1199,11 +1565,15 @@ const Dashboard = () => {
                       className="form-input"
                     >
                       <option value="">Seçiniz</option>
-                      {experts.map(expert => (
-                        <option key={expert.id} value={expert.id}>
-                          {expert.firstName} {expert.lastName}
-                        </option>
-                      ))}
+                      {experts.map(expert => {
+                        const remainingMinutes = expert.assignedMinutes - (expert.usedMinutes || 0);
+                        console.log(`Expert: ${expert.firstName} ${expert.lastName}, Assigned: ${expert.assignedMinutes}, Used: ${expert.usedMinutes}, Remaining: ${remainingMinutes}`);
+                        return (
+                          <option key={expert.id} value={expert.id}>
+                            {expert.firstName} {expert.lastName} - {remainingMinutes} dk
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div className="form-col">
@@ -1215,11 +1585,15 @@ const Dashboard = () => {
                       className="form-input"
                     >
                       <option value="">Seçiniz</option>
-                      {doctors.map(doctor => (
-                        <option key={doctor.id} value={doctor.id}>
-                          {doctor.firstName} {doctor.lastName}
-                        </option>
-                      ))}
+                      {doctors.map(doctor => {
+                        const remainingMinutes = doctor.assignedMinutes - (doctor.usedMinutes || 0);
+                        console.log(`Doctor: ${doctor.firstName} ${doctor.lastName}, Assigned: ${doctor.assignedMinutes}, Used: ${doctor.usedMinutes}, Remaining: ${remainingMinutes}`);
+                        return (
+                          <option key={doctor.id} value={doctor.id}>
+                            {doctor.firstName} {doctor.lastName} - {remainingMinutes} dk
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
@@ -1234,11 +1608,15 @@ const Dashboard = () => {
                       className="form-input"
                     >
                       <option value="">Seçiniz</option>
-                      {dsps.map(dsp => (
-                        <option key={dsp.id} value={dsp.id}>
-                          {dsp.firstName} {dsp.lastName}
-                        </option>
-                      ))}
+                      {dsps.map(dsp => {
+                        const remainingMinutes = dsp.assignedMinutes - (dsp.usedMinutes || 0);
+                        console.log(`DSP: ${dsp.firstName} ${dsp.lastName}, Assigned: ${dsp.assignedMinutes}, Used: ${dsp.usedMinutes}, Remaining: ${remainingMinutes}`);
+                        return (
+                          <option key={dsp.id} value={dsp.id}>
+                            {dsp.firstName} {dsp.lastName} - {remainingMinutes} dk
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div className="form-col">
@@ -1252,7 +1630,7 @@ const Dashboard = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="form-row">
                   <div className="form-col">
                     <label className="form-label">Takip Eden:</label>
@@ -1365,6 +1743,44 @@ const Dashboard = () => {
                       onChange={handleModalChange}
                       className="form-input"
                       min="0"
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-col">
+                    <label className="form-label">Takip Edecek Hekim:</label>
+                    <select
+                      name="trackingDoctorId"
+                      value={selectedWorkplace.trackingDoctorId || ''}
+                      onChange={handleModalChange}
+                      className="form-input"
+                    >
+                      <option value="">Seçiniz</option>
+                      {doctors.map(doctor => (
+                        <option key={doctor.id} value={doctor.id}>
+                          {doctor.firstName} {doctor.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-col">
+                    <label className="form-label">KDV Durumu:</label>
+                    <div className={`kdv-display ${selectedWorkplace.kdvType || 'excluded'}`}>
+                      {selectedWorkplace.kdvType === 'excluded' ? 'KDV HARİÇ' : 'KDV DAHİL'}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-col">
+                    <label className="form-label">Notlar:</label>
+                    <textarea
+                      name="notes"
+                      value={selectedWorkplace.notes || ''}
+                      onChange={handleModalChange}
+                      className="form-textarea"
+                      rows={3}
                     />
                   </div>
                 </div>

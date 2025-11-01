@@ -385,10 +385,12 @@ const ExpertCardPage = () => {
   // Function to open modal in edit mode
   const openEditExpert = (expert: any) => {
     setSelectedExpert(expert);
+    // Populate edit form with existing expert data
+    // Phone number is retained from existing data and not automatically cleared
     setEditFormData({
       firstName: expert.firstName || '',
       lastName: expert.lastName || '',
-      phone: expert.phone || '',
+      phone: expert.phone || '',  // Retain existing phone number
       expertiseClass: expert.expertiseClass || 'A',
       assignedMinutes: expert.assignedMinutes || 11900
     });
@@ -486,15 +488,24 @@ const ExpertCardPage = () => {
       return;
     }
     
+    if (editFormData.assignedMinutes > 11900) {
+      setError('Atanan dakika 11.900\'ü geçemez');
+      clearNotifications();
+      return;
+    }
+    
     try {
       await updateExpert(selectedExpert.id, editFormData);
       setSuccess('Uzman başarıyla güncellendi!');
       closeModal();
       fetchExperts(); // Refresh the experts list
       
+      // Emit an event to notify other components that expert data has changed
+      window.dispatchEvent(new CustomEvent('expertUpdated', { detail: { expertId: selectedExpert.id } }));
+      
       clearNotifications();
     } catch (err: any) {
-      console.error('Update error:', err);
+      console.error('Uzman güncellenirken hata oluştu:', err);
       const errorMessage = err.message || 'Uzman güncellenirken hata oluştu';
       setError(errorMessage);
       clearNotifications();

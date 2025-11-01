@@ -117,18 +117,22 @@ exports.createDSP = async (req, res) => {
     }
 
     // Validate required fields
-    const { name, phone, email, address } = req.body;
+    const { firstName, lastName, phone } = req.body;
     
-    if (!name) {
-      return res.status(400).json({ message: 'Name is required' });
+    if (!firstName) {
+      return res.status(400).json({ message: 'Ad alanı zorunludur' });
+    }
+    
+    if (!lastName) {
+      return res.status(400).json({ message: 'Soyad alanı zorunludur' });
     }
     
     const dsp = await Dsp.create({
-      name,
+      firstName,
+      lastName,
       phone,
-      email,
-      address,
-      organizationId
+      organizationId,
+      assignedMinutes: req.body.assignedMinutes || 11900 // Default to 11900 if not provided
     });
     
     res.status(201).json(dsp);

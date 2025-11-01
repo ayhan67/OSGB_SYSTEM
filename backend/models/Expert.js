@@ -40,4 +40,24 @@ const Expert = sequelize.define('Expert', {
   timestamps: true
 });
 
+// Method to check if expert has enough minutes for a workplace
+Expert.prototype.hasEnoughMinutes = function(riskLevel, employeeCount) {
+  // Calculate required minutes based on risk level and employee count
+  let requiredMinutes = 0;
+  switch (riskLevel) {
+    case 'low':
+      requiredMinutes = employeeCount * 10;
+      break;
+    case 'dangerous':
+      requiredMinutes = employeeCount * 20;
+      break;
+    case 'veryDangerous':
+      requiredMinutes = employeeCount * 40;
+      break;
+  }
+  
+  // Check if expert has enough minutes (assigned minutes should be >= required minutes)
+  return this.assignedMinutes >= requiredMinutes;
+};
+
 module.exports = Expert;

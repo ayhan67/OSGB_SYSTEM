@@ -327,6 +327,9 @@ const DoctorCardPage = () => {
       closeModal();
       fetchDoctors(); // Refresh the doctors list
       
+      // Emit an event to notify other components that doctor data has changed
+      window.dispatchEvent(new CustomEvent('doctorUpdated', { detail: { doctorId: selectedDoctor.id } }));
+      
       clearNotifications();
     } catch (err: any) {
       console.error('Hekim güncellenirken hata oluştu:', err);
@@ -374,10 +377,12 @@ const DoctorCardPage = () => {
   // Function to open modal in edit mode
   const openEditDoctor = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
+    // Populate edit form with existing doctor data
+    // Phone number is retained from existing data and not automatically cleared
     setEditFormData({
       firstName: doctor.firstName,
       lastName: doctor.lastName,
-      phone: doctor.phone,
+      phone: doctor.phone,  // Retain existing phone number
       assignedMinutes: doctor.assignedMinutes || 11900
     });
     setIsEditMode(true);

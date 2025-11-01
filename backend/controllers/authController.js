@@ -292,24 +292,29 @@ exports.updateUser = async (req, res) => {
     
     // Change password if requested
     if (currentPassword && newPassword) {
-      // Verify current password
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Current password is incorrect' });
+      try {
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+          return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+        
+        // Validate new password
+        const passwordValidation = passwordValidator(newPassword);
+        if (!passwordValidation.isValid) {
+          return res.status(400).json({ 
+            message: 'New password does not meet security requirements',
+            errors: passwordValidation.errors
+          });
+        }
+        
+        // Hash new password
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(newPassword, salt);
+      } catch (bcryptError) {
+        console.error('Bcrypt error:', bcryptError);
+        return res.status(500).json({ message: 'Error processing password change' });
       }
-      
-      // Validate new password
-      const passwordValidation = passwordValidator(newPassword);
-      if (!passwordValidation.isValid) {
-        return res.status(400).json({ 
-          message: 'New password does not meet security requirements',
-          errors: passwordValidation.errors
-        });
-      }
-      
-      // Hash new password
-      const salt = await bcrypt.genSalt(12);
-      user.password = await bcrypt.hash(newPassword, salt);
     }
     
     await user.save();
@@ -319,6 +324,10 @@ exports.updateUser = async (req, res) => {
     res.json(userWithoutPassword);
   } catch (error) {
     console.error('Update user error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    // Send a more user-friendly error message
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ message: 'Invalid data provided', errors: error.errors });
+    }
+    res.status(500).json({ message: 'Server error while updating profile', error: error.message });
   }
 };

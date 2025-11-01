@@ -1,5 +1,5 @@
 // Updated API service with authentication support
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5005/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5006/api';
 console.log('API_BASE_URL:', API_BASE_URL);
 
 // Store token in memory (in a real app, you might want to use localStorage)
@@ -84,8 +84,12 @@ const setCachedData = (key: string, data: any) => {
 
 const clearCache = (pattern: string) => {
   const keys = Array.from(apiCache.keys());
+  console.log(`Clearing cache with pattern: ${pattern}`);
+  console.log(`Current cache keys:`, keys);
   const matchingKeys = keys.filter(key => key.includes(pattern));
+  console.log(`Matching keys to clear:`, matchingKeys);
   matchingKeys.forEach(key => apiCache.delete(key));
+  console.log(`Cache cleared. Remaining keys:`, Array.from(apiCache.keys()));
 };
 
 // Create headers with authentication
@@ -101,7 +105,8 @@ const getHeaders = (contentType: string = 'application/json') => {
     headers['Authorization'] = `Bearer ${authToken}`;
   }
   
-  if (organizationId) {
+  // Ensure organizationId is a valid number before adding to headers
+  if (organizationId && !isNaN(organizationId)) {
     headers['x-organization-id'] = organizationId.toString();
   }
   
@@ -387,18 +392,29 @@ export const getAllWorkplaces = async () => {
     return cached;
   }
   
+  // Log debug information
+  console.log('=== getAllWorkplaces Debug Info ===');
+  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('authToken:', authToken);
+  console.log('organizationId:', organizationId);
+  console.log('headers:', getHeaders());
+  
   const response = await fetch(`${API_BASE_URL}/workplaces`, {
     method: 'GET',
     headers: getHeaders(),
   });
   
+  console.log('Workplaces response status:', response.status);
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.log('Workplaces error data:', errorData);
     const errorMessage = errorData.message || `Failed to fetch workplaces: ${response.status} ${response.statusText}`;
     throw new Error(errorMessage);
   }
   
   const data = await response.json();
+  console.log('Workplaces data:', data);
   setCachedData(cacheKey, data);
   return data;
 };
@@ -457,6 +473,11 @@ export const createWorkplace = async (workplace: any) => {
   // Clear cache for workplaces
   clearCache('workplaces');
   
+  // Clear cache for personnel as their used minutes might have changed
+  clearCache('experts');
+  clearCache('doctors');
+  clearCache('dsps');
+  
   return data;
 };
 
@@ -494,6 +515,11 @@ export const updateWorkplace = async (id: number, workplace: any) => {
   clearCache(`workplace_${id}`);
   clearCache('workplaces');
   
+  // Clear cache for personnel as their used minutes might have changed
+  clearCache('experts');
+  clearCache('doctors');
+  clearCache('dsps');
+  
   return data;
 };
 
@@ -511,6 +537,11 @@ export const deleteWorkplace = async (id: number) => {
   // Clear cache for this workplace and all workplaces
   clearCache(`workplace_${id}`);
   clearCache('workplaces');
+  
+  // Clear cache for personnel as their used minutes might have changed
+  clearCache('experts');
+  clearCache('doctors');
+  clearCache('dsps');
   
   return true;
 };
@@ -595,18 +626,29 @@ export const getAllExperts = async () => {
     return cached;
   }
   
+  // Log debug information
+  console.log('=== getAllExperts Debug Info ===');
+  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('authToken:', authToken);
+  console.log('organizationId:', organizationId);
+  console.log('headers:', getHeaders());
+  
   const response = await fetch(`${API_BASE_URL}/experts`, {
     method: 'GET',
     headers: getHeaders(),
   });
   
+  console.log('Experts response status:', response.status);
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.log('Experts error data:', errorData);
     const errorMessage = errorData.message || `Failed to fetch experts: ${response.status} ${response.statusText}`;
     throw new Error(errorMessage);
   }
   
   const data = await response.json();
+  console.log('Experts data:', data);
   setCachedData(cacheKey, data);
   return data;
 };
@@ -771,13 +813,23 @@ export const getAllDoctors = async () => {
     return cached;
   }
   
+  // Log debug information
+  console.log('=== getAllDoctors Debug Info ===');
+  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('authToken:', authToken);
+  console.log('organizationId:', organizationId);
+  console.log('headers:', getHeaders());
+  
   const response = await fetch(`${API_BASE_URL}/doctors`, {
     method: 'GET',
     headers: getHeaders(),
   });
   
+  console.log('Doctors response status:', response.status);
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.log('Doctors error data:', errorData);
     throw new Error(errorData.message || 'Failed to fetch doctors');
   }
   
@@ -878,17 +930,28 @@ export const getAllDsps = async () => {
     return cached;
   }
   
+  // Log debug information
+  console.log('=== getAllDsps Debug Info ===');
+  console.log('API_BASE_URL:', API_BASE_URL);
+  console.log('authToken:', authToken);
+  console.log('organizationId:', organizationId);
+  console.log('headers:', getHeaders());
+  
   const response = await fetch(`${API_BASE_URL}/dsps`, {
     method: 'GET',
     headers: getHeaders(),
   });
   
+  console.log('DSPs response status:', response.status);
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.log('DSPs error data:', errorData);
     throw new Error(errorData.message || 'Failed to fetch DSPs');
   }
   
   const data = await response.json();
+  console.log('DSPs data:', data);
   setCachedData(cacheKey, data);
   return data;
 };

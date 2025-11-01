@@ -104,6 +104,57 @@ app.use('/api/visits', visitsRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/system-config', systemConfigRoutes);
 
+// Add a test endpoint to create a user (for development only)
+app.post('/api/create-test-user', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const User = require('./models/User');
+    const Organization = require('./models/Organization');
+    
+    // Create a test organization first
+    const [org] = await Organization.findOrCreate({
+      where: { name: 'Test OSGB' },
+      defaults: {
+        name: 'Test OSGB',
+        address: 'Test Address',
+        phone: '5551234567',
+        email: 'test@osgb.com',
+        taxNumber: '1234567890',
+        taxOffice: 'Test Tax Office',
+        isActive: true
+      }
+    });
+    
+    // Create a test admin user
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash('Admin123!@#', salt);
+    
+    const user = await User.create({
+      username: 'admin',
+      password: hashedPassword,
+      fullName: 'System Administrator',
+      role: 'admin',
+      organizationId: org.id
+    });
+    
+    res.status(201).json({ message: 'Test user created successfully', user });
+  } catch (error) {
+    console.error('Error creating test user:', error);
+    res.status(500).json({ message: 'Error creating test user', error: error.message });
+  }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    port: PORT,
+    message: 'Backend server is running and accessible'
+  });
+});
+
 // Socket.IO setup with proper CORS
 const io = new Server(server, {
   cors: {
@@ -174,17 +225,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    port: PORT,
-    message: 'Backend server is running and accessible'
-  });
-});
-
 // Function to start the server after database connection is established
 async function startServer() {
   try {
@@ -198,7 +238,7 @@ async function startServer() {
     console.log('Database models synchronized.');
     
     // Start server
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`Database: ${useSQLite ? 'SQLite' : 'MySQL'}`);

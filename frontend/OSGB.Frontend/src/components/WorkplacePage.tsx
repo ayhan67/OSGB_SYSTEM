@@ -80,18 +80,45 @@ const WorkplacePage: React.FC = () => {
       setAllExperts(expertsData);
       setAllDoctors(doctorsData);
       setAllDsps(dspsData);
-      console.log('State updated after data fetch');
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Veri alınırken hata oluştu');
+      
+      setError('');
+    } catch (err: any) {
+      console.error('Veri alınırken hata oluştu:', err);
+      setError('Veriler alınamadı: ' + (err.message || 'Bilinmeyen hata'));
     }
   }, []);
 
-  // Load all data from backend on component mount
+  // Add effect to fetch data on component mount and listen for updates
   useEffect(() => {
-    console.log('WorkplacePage useEffect running - fetching all data at:', new Date().toISOString());
     fetchAllData();
-  }, []);
+    
+    // Add event listeners for personnel updates
+    const handleExpertUpdate = () => {
+      console.log('WorkplacePage: Received expertUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    const handleDoctorUpdate = () => {
+      console.log('WorkplacePage: Received doctorUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    const handleDspUpdate = () => {
+      console.log('WorkplacePage: Received dspUpdated event, refreshing data...');
+      fetchAllData();
+    };
+    
+    window.addEventListener('expertUpdated', handleExpertUpdate);
+    window.addEventListener('doctorUpdated', handleDoctorUpdate);
+    window.addEventListener('dspUpdated', handleDspUpdate);
+    
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('expertUpdated', handleExpertUpdate);
+      window.removeEventListener('doctorUpdated', handleDoctorUpdate);
+      window.removeEventListener('dspUpdated', handleDspUpdate);
+    };
+  }, [fetchAllData]);
 
   // Refresh data when location changes
   useEffect(() => {

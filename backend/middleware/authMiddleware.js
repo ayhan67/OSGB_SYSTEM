@@ -41,15 +41,9 @@ const authMiddleware = async (req, res, next) => {
       }
     }
     
-    // If no organization ID found, check if user is admin
+    // If no organization ID found, return error
     if (!req.organizationId) {
-      // If user is admin, allow access to all organizations
-      if (req.user && req.user.role === 'admin') {
-        // For admin users, we'll handle organization filtering in controllers
-        // by not applying organization filter when user is admin
-      } else {
-        return res.status(400).json({ message: 'Organization ID is required' });
-      }
+      return res.status(400).json({ message: 'Organization ID is required' });
     }
     
     next();

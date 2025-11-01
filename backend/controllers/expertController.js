@@ -5,6 +5,44 @@ const Visit = require('../models/Visit');
 const Organization = require('../models/Organization');
 const { clearCache } = require('../middleware/cacheMiddleware');
 
+// Helper function to check if expert can be downgraded based on existing assignments
+const canDowngradeExpert = async (expertId, newExpertiseClass, organizationId) => {
+  // If upgrading or keeping the same class, no restrictions
+  if (newExpertiseClass === 'A') return true;
+  
+  // Find all workplaces where this expert is assigned
+  const assignedWorkplaces = await Workplace.findAll({
+    where: { 
+      assignedExpertId: expertId,
+      organizationId
+    }
+  });
+  
+  // Check each workplace to see if the new class would be compatible
+  for (const workplace of assignedWorkplaces) {
+    // Check compatibility based on new expertise class
+    let isCompatible = false;
+    switch (newExpertiseClass) {
+      case 'B':
+        // B class experts can be assigned to dangerous and low risk workplaces
+        isCompatible = workplace.riskLevel === 'dangerous' || workplace.riskLevel === 'low';
+        break;
+      case 'C':
+        // C class experts can only be assigned to low risk workplaces
+        isCompatible = workplace.riskLevel === 'low';
+        break;
+      default:
+        isCompatible = false;
+    }
+    
+    if (!isCompatible) {
+      return false; // Cannot downgrade if already assigned to incompatible workplace
+    }
+  }
+  
+  return true;
+};
+
 // Get all experts with used minutes information for the organization
 exports.getAllExperts = async (req, res) => {
   try {
@@ -22,15 +60,9 @@ exports.getAllExperts = async (req, res) => {
 
     const whereClause = { organizationId };
 
-    if (!organizationId) {
-      return res.status(400).json({ message: 'Organization ID is required' });
-    }
-
-    const expertsWhereClause = { organizationId };
-
     // Use a single query with aggregation to calculate used minutes
     const experts = await Expert.findAll({
-      where: expertsWhereClause,
+      where: whereClause,
       order: [['createdAt', 'DESC']],
       attributes: {
         include: [
@@ -83,15 +115,9 @@ exports.getExpertById = async (req, res) => {
 
     whereClause.organizationId = organizationId;
 
-    if (!organizationId) {
-      return res.status(400).json({ message: 'Organization ID is required' });
-    }
-
-    const expertWhereClause = { id, organizationId };
-
     // Use a single query with aggregation to calculate used minutes
     const expert = await Expert.findOne({
-      where: expertWhereClause,
+      where: whereClause,
       attributes: {
         include: [
           [
@@ -142,6 +168,7 @@ exports.getAssignedWorkplaces = async (req, res) => {
       return res.status(400).json({ message: 'Organization ID is required' });
     }
 
+    // Verify that the expert belongs to the organization
     const expertWhereClause = { id, organizationId };
     const workplaceWhereClause = { assignedExpertId: id, organizationId };
 
@@ -199,8 +226,8 @@ exports.createExpert = async (req, res) => {
     if (phone) {
       // Remove all non-digit characters and reformat
       const digits = phone.replace(/\D/g, '');
-      if (digits.length === 10 && digits.startsWith('5')) {
-        formattedPhone = `${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6, 8)} ${digits.substring(8, 10)}`;
+      if (digits.length === 10) {
+        formattedPhone = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
       }
     }
     
@@ -219,11 +246,10 @@ exports.createExpert = async (req, res) => {
     res.status(201).json(expert);
   } catch (error) {
     console.error('Expert creation error:', error);
-    // Check if it's a validation error
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({ message: 'Lütfen tüm alanları doğru şekilde doldurun', error: error.message });
     }
-    res.status(500).json({ message: 'Uzman kaydedilirken hata oluştu', error: error.message });
+    res.status(500).json({ message: 'Uzman oluşturulurken hata oluştu', error: error.message });
   }
 };
 
@@ -243,33 +269,47 @@ exports.updateExpert = async (req, res) => {
       return res.status(400).json({ message: 'Organization ID is required' });
     }
 
-    const whereClause = { id, organizationId };
-
     const expert = await Expert.findOne({
-      where: whereClause
+      where: { 
+        id,
+        organizationId
+      }
     });
     
     if (!expert) {
       return res.status(404).json({ message: 'Uzman bulunamadı' });
     }
     
-    // Validate assigned minutes if provided
+    // Validate assigned minutes
     if (req.body.assignedMinutes !== undefined && req.body.assignedMinutes > 11900) {
       return res.status(400).json({ message: 'Atanan dakika 11.900\'ü geçemez' });
     }
     
+    // Check if expertise class is being changed
+    if (req.body.expertiseClass && req.body.expertiseClass !== expert.expertiseClass) {
+      // Check if expert can be downgraded
+      const canDowngrade = await canDowngradeExpert(id, req.body.expertiseClass, organizationId);
+      if (!canDowngrade) {
+        return res.status(400).json({ 
+          message: 'Bu değişikliği yapamazsınız. Uzman sınıfı daha önce atamasından dolayı değiştirilemez.' 
+        });
+      }
+    }
+    
     // Format phone number if provided
     if (req.body.phone) {
-      // Remove all non-digit characters and reformat
+      let formattedPhone = req.body.phone;
       const digits = req.body.phone.replace(/\D/g, '');
-      if (digits.length === 10 && digits.startsWith('5')) {
-        req.body.phone = `${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6, 8)} ${digits.substring(8, 10)}`;
+      if (digits.length === 10) {
+        formattedPhone = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
       }
+      req.body.phone = formattedPhone;
     }
     
     await expert.update(req.body);
     
-    // Clear cache for experts
+    // Clear cache for this expert and all experts
+    clearCache(`expert_${id}`);
     clearCache('experts');
     
     res.json(expert);
@@ -311,7 +351,8 @@ exports.deleteExpert = async (req, res) => {
     
     await expert.destroy();
     
-    // Clear cache for experts
+    // Clear cache for this expert and all experts
+    clearCache(`expert_${id}`);
     clearCache('experts');
     
     res.json({ message: 'Uzman başarıyla silindi' });
@@ -321,12 +362,98 @@ exports.deleteExpert = async (req, res) => {
   }
 };
 
-// Get visit status summary for an expert
+// Get expert statistics
+exports.getExpertStats = async (req, res) => {
+  try {
+    // Extract organizationId from authenticated user
+    let organizationId = req.organizationId || req.user?.organizationId || req.headers['x-organization-id'];
+    
+    // Ensure organizationId is a number
+    if (typeof organizationId === 'string') {
+      organizationId = parseInt(organizationId, 10);
+    }
+    
+    if (!organizationId) {
+      return res.status(400).json({ message: 'Organization ID is required' });
+    }
+
+    // Get all experts for the organization
+    const experts = await Expert.findAll({
+      where: { organizationId },
+      attributes: ['id', 'firstName', 'lastName', 'expertiseClass', 'assignedMinutes'],
+      include: [{
+        model: Workplace,
+        as: 'Workplaces',
+        attributes: [],
+        where: { 
+          approvalStatus: 'onaylandi',
+          organizationId
+        },
+        required: false
+      }],
+      group: ['Expert.id']
+    });
+    
+    // Calculate statistics for each expert
+    const expertStats = await Promise.all(experts.map(async (expert) => {
+      // Get assigned workplaces count
+      const assignedWorkplacesCount = await Workplace.count({
+        where: { 
+          assignedExpertId: expert.id,
+          approvalStatus: 'onaylandi',
+          organizationId
+        }
+      });
+      
+      // Get tracked workplaces count
+      const trackedWorkplacesCount = await Workplace.count({
+        where: { 
+          trackingExpertId: expert.id,
+          approvalStatus: 'onaylandi',
+          organizationId
+        }
+      });
+      
+      // Get current month visits count
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      
+      const currentMonthVisitsCount = await Visit.count({
+        where: { 
+          expertId: expert.id,
+          visitMonth: currentMonth,
+          organizationId
+        }
+      });
+      
+      return {
+        expert: {
+          id: expert.id,
+          firstName: expert.firstName,
+          lastName: expert.lastName,
+          expertiseClass: expert.expertiseClass,
+          assignedMinutes: expert.assignedMinutes
+        },
+        assignedWorkplaceCount: assignedWorkplacesCount,
+        trackedWorkplaceCount: trackedWorkplacesCount,
+        currentMonthVisitCount: currentMonthVisitsCount,
+        remainingWorkplaceCount: assignedWorkplacesCount - currentMonthVisitsCount
+      };
+    }));
+    
+    res.json(expertStats);
+  } catch (error) {
+    console.error('Error fetching expert stats:', error);
+    res.status(500).json({ message: 'Uzman istatistikleri getirilirken hata oluştu', error: error.message });
+  }
+};
+
+// Get visit summary for an expert
 exports.getVisitSummary = async (req, res) => {
   try {
     const { expertId } = req.params;
     // Extract organizationId from authenticated user
-    let organizationId = req.user?.organizationId || req.headers['x-organization-id'];
+    let organizationId = req.organizationId || req.user?.organizationId || req.headers['x-organization-id'];
     
     // Ensure organizationId is a number
     if (typeof organizationId === 'string') {
@@ -336,8 +463,8 @@ exports.getVisitSummary = async (req, res) => {
     if (!organizationId) {
       return res.status(400).json({ message: 'Organization ID is required' });
     }
-    
-    // Validate expert exists within the organization
+
+    // Verify that the expert belongs to the organization
     const expert = await Expert.findOne({
       where: { 
         id: expertId,
@@ -346,59 +473,53 @@ exports.getVisitSummary = async (req, res) => {
     });
     
     if (!expert) {
-      return res.status(404).json({ error: 'Uzman bulunamadı' });
+      return res.status(404).json({ message: 'Uzman bulunamadı' });
     }
-    
-    // Get all workplaces assigned to this expert within the organization
-    const workplaces = await Workplace.findAll({
-      where: { 
-        assignedExpertId: expertId,
-        organizationId
-      },
-      attributes: ['id', 'name']
-    });
-    
-    // Get all visits for this expert within the organization
+
+    // Get all visits for this expert grouped by workplace and month
     const visits = await Visit.findAll({
       where: { 
         expertId,
         organizationId
-      }
+      },
+      attributes: [
+        'workplaceId',
+        'visitMonth',
+        'visited'
+      ],
+      order: [['visitMonth', 'DESC']]
     });
+
+    // Organize visits by workplace and month
+    const visitSummary = {};
     
-    // Create a summary object
-    const summary = {};
-    workplaces.forEach(workplace => {
-      summary[workplace.id] = {
-        workplaceName: workplace.name,
-        visits: {}
-      };
-    });
-    
-    // Populate visit data
     visits.forEach(visit => {
-      if (summary[visit.workplaceId]) {
-        summary[visit.workplaceId].visits[visit.visitMonth] = {
-          visited: visit.visited,
-          visitDate: visit.visitDate
+      if (!visitSummary[visit.workplaceId]) {
+        visitSummary[visit.workplaceId] = {
+          workplaceId: visit.workplaceId,
+          visits: {}
         };
       }
+      
+      visitSummary[visit.workplaceId].visits[visit.visitMonth] = {
+        visited: visit.visited,
+        visitMonth: visit.visitMonth
+      };
     });
-    
-    res.json(summary);
+
+    res.json(visitSummary);
   } catch (error) {
     console.error('Error fetching visit summary:', error);
-    res.status(500).json({ error: 'Ziyaret özeti getirilirken hata oluştu' });
+    res.status(500).json({ message: 'Ziyaret özeti getirilirken hata oluştu', error: error.message });
   }
 };
 
-// Get all visits for an expert with optional month filter
+// Get all visits for an expert
 exports.getVisits = async (req, res) => {
   try {
     const { expertId } = req.params;
-    const { month } = req.query;
     // Extract organizationId from authenticated user
-    let organizationId = req.user?.organizationId || req.headers['x-organization-id'];
+    let organizationId = req.organizationId || req.user?.organizationId || req.headers['x-organization-id'];
     
     // Ensure organizationId is a number
     if (typeof organizationId === 'string') {
@@ -408,8 +529,8 @@ exports.getVisits = async (req, res) => {
     if (!organizationId) {
       return res.status(400).json({ message: 'Organization ID is required' });
     }
-    
-    // Validate expert exists within the organization
+
+    // Verify that the expert belongs to the organization
     const expert = await Expert.findOne({
       where: { 
         id: expertId,
@@ -418,32 +539,31 @@ exports.getVisits = async (req, res) => {
     });
     
     if (!expert) {
-      return res.status(404).json({ error: 'Uzman bulunamadı' });
+      return res.status(404).json({ message: 'Uzman bulunamadı' });
     }
-    
-    // Build where clause
-    const whereClause = { 
-      expertId,
-      organizationId
-    };
-    if (month) {
-      whereClause.visitMonth = month;
-    }
-    
-    // Get visits for this expert within the organization
+
+    // Get all visits for this expert with related data
     const visits = await Visit.findAll({
-      where: whereClause,
-      include: [{
-        model: Workplace,
-        attributes: ['id', 'name'],
-        where: { organizationId } // Ensure workplace is also in the same organization
-      }],
-      order: [['visitMonth', 'DESC']]
+      where: { 
+        expertId,
+        organizationId
+      },
+      order: [['visitMonth', 'DESC']],
+      include: [
+        {
+          model: Expert,
+          attributes: ['id', 'firstName', 'lastName']
+        },
+        {
+          model: Workplace,
+          attributes: ['id', 'name']
+        }
+      ]
     });
-    
+
     res.json(visits);
   } catch (error) {
     console.error('Error fetching visits:', error);
-    res.status(500).json({ error: 'Ziyaretler getirilirken hata oluştu' });
+    res.status(500).json({ message: 'Ziyaretler getirilirken hata oluştu', error: error.message });
   }
 };

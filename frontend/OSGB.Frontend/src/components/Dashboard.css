@@ -75,8 +75,8 @@
 
 /* Specific styling for the row containing Phone, SGK Sicil No, and Date fields */
 .form-row:nth-child(2) {
-  gap: 30px; /* Increase gap to create more space between fields */
-  margin-bottom: 17px; /* Increase spacing */
+  gap: 15px; /* Reduce gap to accommodate the new field */
+  margin-bottom: 7px; /* Reduce spacing from 17px to 7px to bring rows closer together */
 }
 
 #registrationDate {
@@ -85,42 +85,34 @@
 
 /* Specific width adjustment for SGK Sicil No field */
 #sskRegistrationNo {
-  width: calc(90% + 55px); /* Restore to original +25px width */
-  margin-right: 50px; /* Add space between SGK sicil no and date field */
+  width: calc(90% + 25px); /* Adjust width to accommodate the new field */
+  margin-right: 20px; /* Reduce space between SGK sicil no and date field */
   margin-left: -10px; /* Shift SGK Sicil No field 15px to the left */
 }
 
-/* Adjust the flex properties to ensure proper spacing */
-.form-row:nth-child(2) .form-group {
-  flex: 1;
-}
-
-/* Make the date field slightly smaller to create better balance */
-.form-row:nth-child(2) .form-group:nth-child(3) {
-  flex: 0.8;
-}
-
-.form-row:nth-child(3) {
-  margin-bottom: 17px; /* Increase spacing for the date row */
-}
-
-.form-col {
-  flex: 1;
-  margin-bottom: 7px; /* Increased from 2px to 7px (additional 5px) */
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 3px;
-  color: #000000;
-  font-weight: 500;
-  font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
-}
-
-/* Specific styling for SGK Sicil No row to increase spacing */
+/* Specific styling for the row containing Vergi Dairesi, Vergi No, Kimden, and Fiyat fields */
 .sgk-row {
   margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
-  gap: 45px; /* Increase gap between Vergi Dairesi, Vergi No, and Fiyat fields by 30px total (from 15px to 45px) */
+  gap: 10px; /* Reduce gap between fields to fit the new field */
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Adjust the flex properties to ensure proper spacing for four fields */
+.sgk-row .form-group {
+  flex: 1;
+  min-width: 120px; /* Minimum width for each field */
+}
+
+/* Specific width adjustment for Kimden field */
+#kimden {
+  width: 100%;
+  height: 30px; /* Same height as other form fields */
+  padding: 6px; /* Same padding as other form fields */
+  border: 1px solid #000000; /* Same border as other form fields */
+  border-radius: 5px; /* Same border radius as other form fields */
+  font-size: 0.7rem; /* Same font size as other form fields */
+  box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 /* Specific styling for risk level row */
@@ -160,7 +152,7 @@
 .assignment-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 12px; /* Increased from 7px to 12px (additional 5px) */
+  margin-bottom: 37px; /* Increased from 22px to 37px (additional 15px) */
 }
 
 .assignment-row .form-group {
@@ -172,18 +164,21 @@
   margin-bottom: 3px;
 }
 
-.assignment-row .form-group select {
+.assignment-row .form-group select,
+.assignment-row .form-group input {
   width: 100%;
-  padding: 3px; /* Reduced padding from 4px to 3px */
+  padding: 6px; /* Increased padding */
   border: 1px solid #000000; /* Explicit black borders for better visibility */
   border-radius: 5px;
   font-size: 0.7rem; /* Increased by 1 point from 0.6rem */
   box-sizing: border-box;
   transition: border-color 0.3s;
   color: #000000;
+  height: 30px; /* Standardized height */
 }
 
-.assignment-row .form-group select:focus {
+.assignment-row .form-group select:focus,
+.assignment-row .form-group input:focus {
   outline: none;
   border-color: #000000;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
@@ -242,6 +237,47 @@
   resize: vertical;
 }
 
+.tracking-notes-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 7px;
+  margin-top: -20px; /* Move 20px upward */
+}
+
+.tracking-notes-row .form-group {
+  flex: 1;
+  margin-bottom: 7px;
+}
+
+.tracking-notes-row .form-group label {
+  margin-bottom: 3px;
+}
+
+.tracking-notes-row .form-group select,
+.tracking-notes-row .form-group textarea {
+  width: 100%;
+  padding: 3px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+  height: auto;
+}
+
+.tracking-notes-row .form-group select:focus,
+.tracking-notes-row .form-group textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.tracking-notes-row .form-group textarea {
+  height: calc(2.5em + 16px - 10px);
+  resize: vertical;
+}
+
 .form-group {
   margin-bottom: 2px; /* Minimal vertical spacing */
 }
@@ -294,6 +330,145 @@
 /* Price field styling - remove TL suffix */
 #price {
   width: 100%;
+}
+
+/* Container for price input and kdv label */
+.price-container {
+  position: relative;
+}
+
+.price-input-container {
+  display: flex;
+  align-items: center;
+  position: relative; /* Add this to make dropdown positioning relative to this container */
+}
+
+#price {
+  flex: 1;
+  margin-right: 5px;
+  height: 30px; /* Restore to original height */
+  padding: 6px; /* Restore to original padding */
+  border: 1px solid #000000;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.kdv-label {
+  font-size: 0.7rem;
+  color: #000000;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  display: inline-block;
+  height: 25px;
+  line-height: 25px;
+  box-sizing: border-box;
+}
+
+.kdv-display {
+  font-size: 0.7rem;
+  color: #000000;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  display: inline-block;
+  height: 25px;
+  line-height: 21px;
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+}
+
+.kdv-display.excluded {
+  background-color: #4CAF50; /* Green for KDV HARİÇ */
+  color: white;
+}
+
+.kdv-display.included {
+  background-color: #f44336; /* Red for KDV DAHİL */
+  color: white;
+}
+
+.kdv-toggle-button {
+  font-size: 0.7rem;
+  color: #000000;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  display: inline-block;
+  height: 25px;
+  line-height: 21px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: relative;
+  top: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px;
+}
+
+.kdv-toggle-button.excluded {
+  background-color: #4CAF50; /* Green for KDV HARİÇ */
+  color: white;
+}
+
+.kdv-toggle-button.included {
+  background-color: #f44336; /* Red for KDV DAHİL */
+  color: white;
+}
+
+.kdv-toggle-button::after {
+  content: "▼";
+  font-size: 0.6rem;
+  margin-left: 5px;
+}
+
+.kdv-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  width: 100%;
+  margin-top: 2px;
+  box-sizing: border-box; /* Add this to ensure proper sizing */
+}
+
+.kdv-dropdown-option {
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: #000000;
+}
+
+.kdv-dropdown-option:hover {
+  background-color: #f0f0f0;
+}
+
+.kdv-dropdown-option.excluded {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.kdv-dropdown-option.included {
+  color: #f44336;
+  font-weight: 500;
 }
 
 .form-group {
@@ -350,11 +525,6 @@
   margin-right: 50px; /* Add space between SGK sicil no and date field */
 }
 
-/* Price field styling - remove TL suffix */
-#price {
-  width: 100%;
-}
-
 /* Shift labels for better alignment */
 label[for="phone"] {
   margin-left: 0;
@@ -368,37 +538,15 @@ label[for="registrationDate"] {
   margin-left: 0;
 }
 
-.submit-button {
-  width: 100%;
-  padding: 11px; /* Increased padding from 9px to 11px */
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-  height: 35px; /* Increased height by 5px */
-}
-
-.submit-button:hover {
-  background-color: #357ae8;
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
 /* Styles for smaller buttons */
 .small-button {
-  width: 48%;
-  padding: 11px; /* Increased padding from 9px to 11px */
-  margin-right: 4%;
+  width: 24%; /* Keep reduced width */
+  padding: 5.5px;
+  margin-right: 2%;
   display: inline-block;
   box-sizing: border-box;
-  height: 35px; /* Increased height by 5px */
+  height: 25.5px;
+  font-size: 0.85rem; /* Increased from 0.65rem to 0.85rem (2 points) */
 }
 
 .small-button:last-child {
@@ -407,30 +555,54 @@ label[for="registrationDate"] {
 
 /* Styles for the clear button */
 .clear-button {
-  width: 48%;
-  padding: 11px; /* Increased padding from 9px to 11px */
+  width: 24%; /* Keep reduced width */
+  padding: 5.5px;
   background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 0.9rem;
+  font-size: 0.85rem; /* Increased from 0.65rem to 0.85rem (2 points) */
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 10px;
   display: inline-block;
   box-sizing: border-box;
-  height: 35px; /* Increased height by 5px */
+  height: 25.5px;
 }
 
 .clear-button:hover {
   background-color: #b71c1c; /* Dark red on hover to match other "Temizle" buttons */
 }
 
+.submit-button {
+  width: 24%; /* Changed from 50% to 24% to match Temizle button width */
+  padding: 5.5px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  height: 25.5px;
+}
+
+/* Center button text vertically and horizontally */
 .form-actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 0px; /* Reduced from 5px to 0px to move buttons 5px upward */
+}
+
+.small-button,
+.clear-button,
+.submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -1151,4 +1323,22 @@ label[for="registrationDate"] {
 
 .form-column {
   flex: 1;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  color: #000000;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
 }

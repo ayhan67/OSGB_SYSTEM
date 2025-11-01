@@ -98,6 +98,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     setOrgId(null);
     localStorage.removeItem('authToken');
+    localStorage.removeItem('organizationId');
     setAuthToken('');
     setOrganizationId(0);
   };

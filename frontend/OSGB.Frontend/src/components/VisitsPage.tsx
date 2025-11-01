@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { getAllExperts, getExpertAssignedWorkplaces, getVisitsForExpert } from '../services/api';
+import { getAllExperts, getExpertAssignedWorkplaces, getVisitsForExpert, createVisit, deleteVisit } from '../services/api';
 import './VisitsPage.css';
 
 interface Expert {
@@ -94,7 +94,7 @@ const VisitsPage: React.FC = () => {
     fetchExpertsWithStats();
     
     // Initialize WebSocket connection
-    socketRef.current = io('http://localhost:5001');
+    socketRef.current = io('http://localhost:5005');
     
     // Listen for visit updates
     if (socketRef.current) {
@@ -179,7 +179,9 @@ const VisitsPage: React.FC = () => {
       setTrackedWorkplaces(workplacesData);
       
       // Fetch visit data for all workplaces
-      await fetchVisitData(expertId, workplacesData);
+      if (workplacesData && workplacesData.length > 0) {
+        await fetchVisitData(expertId, workplacesData);
+      }
     } catch (err: any) {
       console.error('Error fetching tracked workplaces:', err);
       setError('İş yerleri getirilirken hata oluştu: ' + (err.message || ''));
@@ -194,14 +196,23 @@ const VisitsPage: React.FC = () => {
       
       // Initialize visit status from backend data
       const initialStatus: VisitStatus = {};
+      
+      // Process the visit data array
+      visitData.forEach((visit: any) => {
+        if (!initialStatus[visit.workplaceId]) {
+          initialStatus[visit.workplaceId] = {};
+        }
+        // Assuming visitMonth is in YYYY-MM format
+        initialStatus[visit.workplaceId][visit.visitMonth] = true;
+      });
+      
+      // Ensure all workplaces have entries for all months
       workplaces.forEach((workplace) => {
-        initialStatus[workplace.id] = {};
+        if (!initialStatus[workplace.id]) {
+          initialStatus[workplace.id] = {};
+        }
         getAllYearMonths(currentYear).forEach(month => {
-          // Check if we have visit data for this workplace and month
-          if (visitData[workplace.id] && visitData[workplace.id].visits && visitData[workplace.id].visits[month.value]) {
-            initialStatus[workplace.id][month.value] = visitData[workplace.id].visits[month.value].visited;
-          } else {
-            // Default to not visited if no data exists
+          if (initialStatus[workplace.id][month.value] === undefined) {
             initialStatus[workplace.id][month.value] = false;
           }
         });
@@ -210,7 +221,72 @@ const VisitsPage: React.FC = () => {
       setVisitStatus(initialStatus);
     } catch (err: any) {
       console.error('Error fetching visit data:', err);
-      setError('Ziyaret verileri getirilirken hata oluştu: ' + (err.message || ''));
+      setError('Ziyaret verileri getirilirken hata oluştu. Lütfen sistem yöneticinizle iletişime geçin. Hata detayı: ' + (err.message || ''));
+    }
+  };
+
+  // Function to toggle visit status for a workplace and month
+  const toggleVisitStatus = async (workplaceId: number, month: string) => {
+    if (!selectedExpert) return;
+    
+    try {
+      // Get the current status
+      const isCurrentlyVisited = visitStatus[workplaceId]?.[month] || false;
+      
+      // Toggle the status in the UI immediately for better UX
+      setVisitStatus(prev => {
+        const newStatus = { ...prev };
+        if (!newStatus[workplaceId]) {
+          newStatus[workplaceId] = {};
+        }
+        newStatus[workplaceId][month] = !isCurrentlyVisited;
+        return newStatus;
+      });
+
+      // If it was not visited, create a new visit record
+      if (!isCurrentlyVisited) {
+        // Create a visit record
+        const visitData = {
+          expertId: selectedExpert.id,
+          workplaceId: workplaceId,
+          visitDate: new Date().toISOString().split('T')[0], // Today's date
+          startTime: '09:00',
+          endTime: '10:00',
+          visitMonth: month,
+          notes: `Ziyaret ${month} için otomatik oluşturuldu`
+        };
+        
+        await createVisit(visitData);
+      } else {
+        // If it was visited, we need to find and delete the visit record
+        // First, we need to find the visit record for this expert, workplace, and month
+        const visits = await getVisitsForExpert(selectedExpert.id);
+        const visitToDelete = visits.find((visit: any) => 
+          visit.workplaceId === workplaceId && visit.visitMonth === month
+        );
+        
+        if (visitToDelete) {
+          await deleteVisit(visitToDelete.id);
+        }
+      }
+      
+      // Refresh the visit data
+      if (selectedExpert) {
+        await fetchVisitData(selectedExpert.id, trackedWorkplaces);
+      }
+    } catch (err: any) {
+      console.error('Error updating visit status:', err);
+      setError('Ziyaret durumu güncellenirken hata oluştu: ' + (err.message || ''));
+      
+      // Revert the status change on error
+      setVisitStatus(prev => {
+        const newStatus = { ...prev };
+        if (!newStatus[workplaceId]) {
+          newStatus[workplaceId] = {};
+        }
+        newStatus[workplaceId][month] = !newStatus[workplaceId][month];
+        return newStatus;
+      });
     }
   };
 
@@ -367,6 +443,7 @@ const VisitsPage: React.FC = () => {
                                 key={month.value} 
                                 className={`month-box ${isVisited ? 'visited' : 'not-visited'}`}
                                 title={`${month.label} ${currentYear}: ${isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi'}`}
+                                onClick={() => toggleVisitStatus(workplace.id, month.value)}
                               >
                                 <span className="month-label">{month.label.charAt(0)}</span>
                               </div>

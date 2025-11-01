@@ -26,13 +26,11 @@ exports.getAllVisits = async (req, res) => {
       include: [
         {
           model: Expert,
-          attributes: ['id', 'firstName', 'lastName'],
-          where: { organizationId }
+          attributes: ['id', 'firstName', 'lastName']
         },
         {
           model: Workplace,
-          attributes: ['id', 'name'],
-          where: { organizationId }
+          attributes: ['id', 'name']
         }
       ]
     });
@@ -64,13 +62,11 @@ exports.getVisitById = async (req, res) => {
       include: [
         {
           model: Expert,
-          attributes: ['id', 'firstName', 'lastName'],
-          where: { organizationId }
+          attributes: ['id', 'firstName', 'lastName']
         },
         {
           model: Workplace,
-          attributes: ['id', 'name'],
-          where: { organizationId }
+          attributes: ['id', 'name']
         }
       ]
     });
@@ -97,7 +93,7 @@ exports.createVisit = async (req, res) => {
     }
 
     // Validate required fields
-    const { expertId, workplaceId, visitMonth, visited } = req.body;
+    const { expertId, workplaceId, visitMonth } = req.body;
     
     if (!expertId || !workplaceId || !visitMonth) {
       return res.status(400).json({ message: 'Expert, workplace, and visit month are required' });
@@ -295,13 +291,11 @@ exports.getVisitsByExpert = async (req, res) => {
       include: [
         {
           model: Expert,
-          attributes: ['id', 'firstName', 'lastName'],
-          where: { organizationId }
+          attributes: ['id', 'firstName', 'lastName']
         },
         {
           model: Workplace,
-          attributes: ['id', 'name'],
-          where: { organizationId }
+          attributes: ['id', 'name']
         }
       ]
     });
@@ -345,13 +339,11 @@ exports.getVisitsByWorkplace = async (req, res) => {
       include: [
         {
           model: Expert,
-          attributes: ['id', 'firstName', 'lastName'],
-          where: { organizationId }
+          attributes: ['id', 'firstName', 'lastName']
         },
         {
           model: Workplace,
-          attributes: ['id', 'name'],
-          where: { organizationId }
+          attributes: ['id', 'name']
         }
       ]
     });
@@ -383,13 +375,11 @@ exports.getVisitsByMonth = async (req, res) => {
       include: [
         {
           model: Expert,
-          attributes: ['id', 'firstName', 'lastName'],
-          where: { organizationId }
+          attributes: ['id', 'firstName', 'lastName']
         },
         {
           model: Workplace,
-          attributes: ['id', 'name'],
-          where: { organizationId }
+          attributes: ['id', 'name']
         }
       ]
     });
